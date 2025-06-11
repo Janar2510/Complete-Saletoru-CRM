@@ -56,6 +56,13 @@ export const DevModeProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const checkSupabaseConnection = async () => {
       try {
+        // Check if supabase client is initialized
+        if (!supabase || !supabase.auth) {
+          console.warn('Supabase client not initialized');
+          setSupabaseStatus('disconnected');
+          return;
+        }
+
         // Use a simple auth check instead of querying a specific table
         const { data, error } = await supabase.auth.getSession();
         if (error) {
