@@ -57,8 +57,15 @@ export const DevModeProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const checkSupabaseConnection = async () => {
       try {
         // Check if supabase client is initialized
-        if (!supabase || !supabase.auth) {
+        if (!supabase) {
           console.warn('Supabase client not initialized');
+          setSupabaseStatus('disconnected');
+          return;
+        }
+
+        // Check if auth is available
+        if (!supabase.auth) {
+          console.warn('Supabase auth not available');
           setSupabaseStatus('disconnected');
           return;
         }

@@ -7,6 +7,11 @@ export class NotificationService {
    */
   static async getNotifications(filters?: NotificationFilters, limit = 20, offset = 0): Promise<Notification[]> {
     try {
+      if (!supabase) {
+        console.warn('Supabase client not initialized');
+        return [];
+      }
+
       let query = supabase
         .from('user_notifications')
         .select('*')
@@ -41,6 +46,11 @@ export class NotificationService {
    */
   static async getUnreadCount(): Promise<number> {
     try {
+      if (!supabase) {
+        console.warn('Supabase client not initialized');
+        return 0;
+      }
+
       const { count, error } = await supabase
         .from('user_notifications')
         .select('*', { count: 'exact', head: true })
@@ -60,6 +70,11 @@ export class NotificationService {
    */
   static async markAsRead(notificationId: string): Promise<boolean> {
     try {
+      if (!supabase) {
+        console.warn('Supabase client not initialized');
+        return false;
+      }
+
       const { data, error } = await supabase
         .rpc('mark_notification_read', { p_notification_id: notificationId });
       
@@ -76,6 +91,11 @@ export class NotificationService {
    */
   static async markAllAsRead(): Promise<number> {
     try {
+      if (!supabase) {
+        console.warn('Supabase client not initialized');
+        return 0;
+      }
+
       const { data, error } = await supabase
         .rpc('mark_all_notifications_read');
       
@@ -92,6 +112,11 @@ export class NotificationService {
    */
   static async dismiss(notificationId: string): Promise<boolean> {
     try {
+      if (!supabase) {
+        console.warn('Supabase client not initialized');
+        return false;
+      }
+
       const { data, error } = await supabase
         .rpc('dismiss_notification', { p_notification_id: notificationId });
       
@@ -108,6 +133,11 @@ export class NotificationService {
    */
   static async dismissAll(): Promise<number> {
     try {
+      if (!supabase) {
+        console.warn('Supabase client not initialized');
+        return 0;
+      }
+
       const { data, error } = await supabase
         .rpc('dismiss_all_notifications');
       
@@ -124,6 +154,11 @@ export class NotificationService {
    */
   static async getNotificationPreferences(): Promise<NotificationPreferences | null> {
     try {
+      if (!supabase) {
+        console.warn('Supabase client not initialized');
+        return null;
+      }
+
       const { data, error } = await supabase
         .from('user_settings')
         .select('notification_preferences')
@@ -142,6 +177,11 @@ export class NotificationService {
    */
   static async updateNotificationPreferences(preferences: Partial<NotificationPreferences>): Promise<boolean> {
     try {
+      if (!supabase) {
+        console.warn('Supabase client not initialized');
+        return false;
+      }
+
       // First get current preferences
       const { data: currentData, error: fetchError } = await supabase
         .from('user_settings')
@@ -174,24 +214,34 @@ export class NotificationService {
    * Subscribe to real-time notifications
    */
   static subscribeToNotifications(callback: (notification: Notification) => void) {
-    const channel = supabase
-      .channel('user_notifications')
-      .on('postgres_changes', 
-        { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'user_notifications',
-          filter: `user_id=eq.${supabase.auth.getUser().then(res => res.data.user?.id)}`
-        }, 
-        (payload) => {
-          callback(payload.new as Notification);
-        }
-      )
-      .subscribe();
-    
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    if (!supabase) {
+      console.warn('Supabase client not initialized');
+      return () => {}; // Return dummy unsubscribe function
+    }
+
+    try {
+      const channel = supabase
+        .channel('user_notifications')
+        .on('postgres_changes', 
+          { 
+            event: 'INSERT', 
+            schema: 'public', 
+            table: 'user_notifications',
+            filter: `user_id=eq.${supabase.auth.getUser().then(res => res.data.user?.id)}`
+          }, 
+          (payload) => {
+            callback(payload.new as Notification);
+          }
+        )
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    } catch (error) {
+      console.error('Error subscribing to notifications:', error);
+      return () => {}; // Return dummy unsubscribe function
+    }
   }
   
   /**
@@ -199,6 +249,11 @@ export class NotificationService {
    */
   static async createTestNotification(type: string = 'system'): Promise<boolean> {
     try {
+      if (!supabase) {
+        console.warn('Supabase client not initialized');
+        return false;
+      }
+
       const { error } = await supabase.functions.invoke('create-test-notification', {
         body: { type }
       });
