@@ -34,7 +34,7 @@ import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
 
 const Settings: React.FC = () => {
-  const { user } = useAuth();
+  const { user, updateUserRole } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
@@ -124,6 +124,8 @@ const Settings: React.FC = () => {
     }
   };
 
+  const isAdmin = user?.user_metadata?.role === 'admin' || user?.user_metadata?.role === 'developer_admin';
+
   const settingsCategories = [
     {
       id: 'account',
@@ -187,7 +189,7 @@ const Settings: React.FC = () => {
       icon: Shield,
       color: 'from-red-500/20 to-red-600/20',
       iconColor: 'text-red-400',
-      adminOnly: true,
+      adminOnly: false, // Changed to false to make it visible to all users
       items: [
         { name: 'Permission Matrix', description: 'Configure granular permissions' },
         { name: 'Role Management', description: 'Create and manage user roles' },
@@ -202,7 +204,7 @@ const Settings: React.FC = () => {
       icon: CreditCard,
       color: 'from-indigo-500/20 to-indigo-600/20',
       iconColor: 'text-indigo-400',
-      adminOnly: true,
+      adminOnly: false, // Changed to false to make it visible to all users
       items: [
         { name: 'Current Plan', description: 'View your current subscription details' },
         { name: 'Usage Analytics', description: 'Monitor feature usage and limits' },
@@ -231,7 +233,7 @@ const Settings: React.FC = () => {
       icon: Database,
       color: 'from-gray-500/20 to-gray-600/20',
       iconColor: 'text-gray-400',
-      adminOnly: true,
+      adminOnly: false, // Changed to false to make it visible to all users
       items: [
         { name: 'Data Management', description: 'Import, export, and backup data' },
         { name: 'Custom Fields', description: 'Create custom fields for deals and contacts' },
@@ -241,7 +243,6 @@ const Settings: React.FC = () => {
     }
   ];
 
-  const isAdmin = user?.user_metadata?.role === 'admin' || user?.user_metadata?.role === 'developer_admin';
   const filteredCategories = settingsCategories.filter(category => 
     !category.adminOnly || isAdmin
   );
@@ -480,6 +481,29 @@ const Settings: React.FC = () => {
                     </div>
                   </div>
                 </div>
+                
+                {isAdmin && (
+                  <div className="border-t border-dark-200 pt-6">
+                    <h3 className="text-lg font-medium text-white mb-4">Admin Settings</h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-white mb-2">
+                          User Role
+                        </label>
+                        <select
+                          value={user?.user_metadata?.role || 'user'}
+                          onChange={(e) => updateUserRole(e.target.value)}
+                          className="w-full px-3 py-2 bg-dark-200/50 border border-dark-300 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent"
+                        >
+                          <option value="user">User</option>
+                          <option value="admin">Admin</option>
+                          <option value="developer_admin">Developer Admin</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 <div className="flex justify-end pt-4 border-t border-dark-200">
                   <button

@@ -116,15 +116,16 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
               </div>
               <div className="hidden md:block">
                 <span className="text-sm font-medium text-white">{userName}</span>
-                <span className="text-xs text-dark-400 block">{userRole}</span>
+                <span className="text-xs text-dark-400 block capitalize">{userRole}</span>
               </div>
             </button>
             
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-surface border border-dark-200 rounded-lg shadow-lg z-50">
+              <div className="absolute right-0 mt-2 w-64 bg-surface border border-dark-200 rounded-lg shadow-lg z-50">
                 <div className="p-3 border-b border-dark-200">
                   <p className="font-medium text-white">{userName}</p>
                   <p className="text-xs text-dark-400">{user?.email}</p>
+                  <p className="text-xs text-accent mt-1 capitalize">{userRole}</p>
                 </div>
                 <div className="py-1">
                   <Link 
@@ -149,7 +150,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                     onClick={handleSignOut}
                     className="block w-full text-left px-4 py-2 text-white hover:bg-dark-200 transition-colors flex items-center"
                   >
-                    <LogOut className="w-4 h-4 mr-2 text-dark-400" />
+                    <LogOut className="w-4 h-4 mr-2 text-red-400" />
                     Sign Out
                   </button>
                 </div>

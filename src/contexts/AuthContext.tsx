@@ -11,6 +11,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   loading: boolean;
   resetPassword: (email: string) => Promise<void>;
+  updateUserRole: (role: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -136,6 +137,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) throw error;
   };
 
+  const updateUserRole = async (role: string) => {
+    if (!user) return;
+    
+    if (isDevMode) {
+      // In dev mode, just update the fake user
+      const updatedUser = {
+        ...fakeUser,
+        user_metadata: {
+          ...fakeUser.user_metadata,
+          role: role
+        }
+      };
+      setUser(updatedUser as User);
+      return;
+    }
+
+    if (!isSupabaseConfigured || !supabase) {
+      throw new Error('Supabase is not configured');
+    }
+
+    try {
+      const { data, error } = await supabase.auth.updateUser({
+        data: { role }
+      });
+      
+      if (error) throw error;
+      
+      if (data.user) {
+        setUser(data.user);
+      }
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     session,
@@ -144,6 +181,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
     loading,
     resetPassword,
+    updateUserRole,
   };
 
   return (

@@ -8,17 +8,24 @@ export const NotificationToastContainer: React.FC = () => {
   
   // Subscribe to real-time notifications
   useEffect(() => {
-    const unsubscribe = NotificationService.subscribeToNotifications((notification) => {
-      // Add new notification to toasts
-      setToasts(prev => [notification, ...prev]);
-      
-      // Play sound if enabled
-      playNotificationSound();
-    });
-    
-    return () => {
-      unsubscribe();
-    };
+    // Only subscribe if supabase is available
+    if (!window.location.href.includes('login')) {
+      try {
+        const unsubscribe = NotificationService.subscribeToNotifications((notification) => {
+          // Add new notification to toasts
+          setToasts(prev => [notification, ...prev]);
+          
+          // Play sound if enabled
+          playNotificationSound();
+        });
+        
+        return () => {
+          unsubscribe();
+        };
+      } catch (error) {
+        console.error('Error subscribing to notifications:', error);
+      }
+    }
   }, []);
   
   // Play notification sound

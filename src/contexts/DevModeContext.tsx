@@ -44,10 +44,10 @@ export const DevModeProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Fake user for development
   const fakeUser = {
     id: 'dev-mode-user',
-    email: 'janar@example.com',
+    email: 'admin@example.com',
     user_metadata: {
-      full_name: 'Janar Kuusk',
-      role: 'user',
+      full_name: 'Admin User',
+      role: 'developer_admin',
       is_developer_mode: true,
     },
   };
@@ -198,7 +198,7 @@ const DevModeBadge: React.FC = () => {
           animation: 'pulse 2s infinite'
         }}
       >
-        <span className="text-sm font-medium">🧪 Dev Mode: User Access</span>
+        <span className="text-sm font-medium">🧪 Dev Mode: Admin Access</span>
         <div className={`w-2 h-2 rounded-full ${
           supabaseStatus === 'connected' ? 'bg-green-400' : 
           supabaseStatus === 'error' ? 'bg-red-400' : 'bg-yellow-400'
@@ -224,7 +224,7 @@ const DevModeBadge: React.FC = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-dark-400">User:</span>
-              <span className="text-white">Janar Kuusk</span>
+              <span className="text-white">Admin User</span>
             </div>
             <div className="pt-2 mt-2 border-t border-dark-200">
               <a 

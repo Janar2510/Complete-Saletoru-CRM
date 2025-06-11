@@ -75,8 +75,7 @@ export class NotificationService {
         return false;
       }
 
-      const { data, error } = await supabase
-        .rpc('mark_notification_read', { p_notification_id: notificationId });
+      const { data, error } = await supabase.rpc('mark_notification_read', { p_notification_id: notificationId });
       
       if (error) throw error;
       return data || false;
@@ -96,8 +95,7 @@ export class NotificationService {
         return 0;
       }
 
-      const { data, error } = await supabase
-        .rpc('mark_all_notifications_read');
+      const { data, error } = await supabase.rpc('mark_all_notifications_read');
       
       if (error) throw error;
       return data || 0;
@@ -117,8 +115,7 @@ export class NotificationService {
         return false;
       }
 
-      const { data, error } = await supabase
-        .rpc('dismiss_notification', { p_notification_id: notificationId });
+      const { data, error } = await supabase.rpc('dismiss_notification', { p_notification_id: notificationId });
       
       if (error) throw error;
       return data || false;
@@ -138,8 +135,7 @@ export class NotificationService {
         return 0;
       }
 
-      const { data, error } = await supabase
-        .rpc('dismiss_all_notifications');
+      const { data, error } = await supabase.rpc('dismiss_all_notifications');
       
       if (error) throw error;
       return data || 0;
