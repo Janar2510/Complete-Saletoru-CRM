@@ -28,7 +28,7 @@ export class AIAPI {
 
   // Session Management
   static async getCurrentSession(): Promise<AISession | null> {
-    if (!isSupabaseConfigured()) {
+    if (!isSupabaseConfigured) {
       // Return mock session for developer mode
       const mockSession: AISession = {
         id: 'mock-session-id',
@@ -86,7 +86,7 @@ export class AIAPI {
   }
 
   static async loadSessionHistory(sessionId: string): Promise<ChatMessage[]> {
-    if (!isSupabaseConfigured()) {
+    if (!isSupabaseConfigured) {
       // Return empty history for developer mode
       this.messageHistory = [];
       return this.messageHistory;
@@ -127,7 +127,7 @@ export class AIAPI {
 
   // AI Processing
   static async processMessage(message: string, context?: AIContext): Promise<ChatMessage> {
-    if (!isSupabaseConfigured()) {
+    if (!isSupabaseConfigured) {
       // Return mock response for developer mode
       const mockResponse: ChatMessage = {
         id: `assistant-${Date.now()}`,
@@ -207,7 +207,7 @@ export class AIAPI {
 
   // Enhanced CRM Intelligence Methods
   static async getPipelineAnalysis(): Promise<PipelineAnalysis> {
-    if (!isSupabaseConfigured()) {
+    if (!isSupabaseConfigured) {
       // Return mock pipeline analysis for developer mode
       return {
         total_deals: 15,
@@ -250,7 +250,7 @@ export class AIAPI {
   }
   
   static async getTopLeads(count: number = 3): Promise<any[]> {
-    if (!isSupabaseConfigured()) {
+    if (!isSupabaseConfigured) {
       // Return mock top leads for developer mode
       return [
         {
@@ -297,7 +297,7 @@ export class AIAPI {
   }
   
   static async generateEmailDraft(dealId: string, purpose: string): Promise<EmailDraft> {
-    if (!isSupabaseConfigured()) {
+    if (!isSupabaseConfigured) {
       // Return mock email draft for developer mode
       return {
         subject: `Follow-up on ${purpose}`,
@@ -332,7 +332,7 @@ export class AIAPI {
   }
   
   static async getUserPerformance(userId: string): Promise<UserPerformance> {
-    if (!isSupabaseConfigured() || !isValidUUID(userId)) {
+    if (!isSupabaseConfigured || !isValidUUID(userId)) {
       // Return mock user performance for developer mode
       return {
         deals_closed: 12,
@@ -370,7 +370,7 @@ export class AIAPI {
 
   // User Preferences
   static async getUserPreferences(userId: string): Promise<AIPreferences> {
-    if (!isSupabaseConfigured() || !isValidUUID(userId)) {
+    if (!isSupabaseConfigured || !isValidUUID(userId)) {
       // Return mock preferences for developer mode
       return {
         id: 'mock-preferences-id',
@@ -429,7 +429,7 @@ export class AIAPI {
   }
 
   static async updateUserPreferences(userId: string, preferences: Partial<AIPreferences>): Promise<void> {
-    if (!isSupabaseConfigured() || !isValidUUID(userId)) {
+    if (!isSupabaseConfigured || !isValidUUID(userId)) {
       // Skip update in developer mode
       return;
     }
@@ -452,7 +452,7 @@ export class AIAPI {
     processingTime?: number,
     confidence?: number
   ): Promise<void> {
-    if (!isSupabaseConfigured()) {
+    if (!isSupabaseConfigured) {
       // Skip logging in developer mode
       return;
     }
@@ -476,7 +476,7 @@ export class AIAPI {
 
   // Analytics
   static async getAIAnalytics(userId: string, timeRange: 'day' | 'week' | 'month' = 'week'): Promise<any> {
-    if (!isSupabaseConfigured() || !isValidUUID(userId)) {
+    if (!isSupabaseConfigured || !isValidUUID(userId)) {
       // Return mock analytics for developer mode
       return {
         total_interactions: 25,
