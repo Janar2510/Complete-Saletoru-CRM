@@ -126,7 +126,7 @@ export class AIAPI {
   }
 
   // AI Processing
-  static async processMessage(message: string, context?: AIContext): Promise<ChatMessage> {
+  static async processMessage(message: string, context?: AIContext, providedSession?: AISession | null): Promise<ChatMessage> {
     if (!isSupabaseConfigured) {
       // Return mock response for developer mode
       const mockResponse: ChatMessage = {
@@ -139,8 +139,26 @@ export class AIAPI {
       return mockResponse;
     }
 
-    const session = await this.getCurrentSession();
-    if (!session) throw new Error('No active session');
+    // Use provided session or get current session
+    let session = providedSession;
+    if (!session) {
+      try {
+        session = await this.getCurrentSession();
+      } catch (error) {
+        console.error('Error getting session:', error);
+      }
+    }
+
+    // If we still don't have a session, return an informative error message
+    if (!session) {
+      const errorMessage: ChatMessage = {
+        id: `error-${Date.now()}`,
+        type: 'assistant',
+        content: "I'm having trouble establishing a connection. Please try refreshing the page or contact support if the issue persists.",
+        timestamp: new Date(),
+      };
+      return errorMessage;
+    }
 
     const startTime = Date.now();
     

@@ -63,11 +63,18 @@ export const useAIAssistant = () => {
       
       setMessages(prev => [...prev, userMessage]);
 
+      // Ensure we have a session before processing
+      let currentSession = session;
+      if (!currentSession) {
+        currentSession = await AIAPI.getCurrentSession();
+        setSession(currentSession);
+      }
+
       // Get current context
       const context = AIContextManager.getContext();
       
-      // Process message with AI
-      const response = await AIAPI.processMessage(message, context);
+      // Process message with AI, passing the current session
+      const response = await AIAPI.processMessage(message, context, currentSession);
       
       // Add AI response to the chat
       setMessages(prev => [...prev, response]);
@@ -90,7 +97,7 @@ export const useAIAssistant = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [isLoading]);
+  }, [isLoading, session]);
 
   const updatePreferences = useCallback(async (newPreferences: Partial<AIPreferences>) => {
     if (!user || !preferences) return;
