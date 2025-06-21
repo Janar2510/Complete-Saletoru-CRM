@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase, isSupabaseConfigured, supabaseUrl, supabaseAnonKey } from './supabase';
 import { DealsAPI } from './deals-api';
 import { ContactsAPI } from './contacts-api';
 import { 
@@ -15,13 +15,6 @@ import {
   EmailDraft,
   UserPerformance
 } from '../types/ai';
-
-// Check if Supabase is properly configured
-const isSupabaseConfigured = () => {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  return supabaseUrl && supabaseAnonKey && supabaseUrl !== '' && supabaseAnonKey !== '';
-};
 
 // Check if user ID is a valid UUID
 const isValidUUID = (id: string) => {
@@ -538,7 +531,3 @@ export class AIAPI {
     return digest;
   }
 }
-
-// Supabase URL and anon key
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
