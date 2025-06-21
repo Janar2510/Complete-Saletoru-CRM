@@ -16,18 +16,50 @@ import {
   UserPerformance
 } from '../types/ai';
 
+// Check if Supabase is properly configured
+const isSupabaseConfigured = () => {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  return supabaseUrl && supabaseAnonKey && supabaseUrl !== '' && supabaseAnonKey !== '';
+};
+
+// Check if user ID is a valid UUID
+const isValidUUID = (id: string) => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+};
+
 export class AIAPI {
   private static currentSession: AISession | null = null;
   private static messageHistory: ChatMessage[] = [];
 
   // Session Management
   static async getCurrentSession(): Promise<AISession | null> {
+    if (!isSupabaseConfigured()) {
+      // Return mock session for developer mode
+      const mockSession: AISession = {
+        id: 'mock-session-id',
+        user_id: 'dev-mode-user',
+        session_name: 'Developer Mode Session',
+        context_summary: 'Mock session for development',
+        last_activity_at: new Date().toISOString(),
+        is_active: true,
+        session_data: {},
+        created_at: new Date().toISOString(),
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      };
+      this.currentSession = mockSession;
+      return mockSession;
+    }
+
     if (this.currentSession && new Date(this.currentSession.expires_at) > new Date()) {
       return this.currentSession;
     }
 
     const { data: user } = await supabase.auth.getUser();
-    if (!user.user) return null;
+    if (!user.user || !isValidUUID(user.user.id)) {
+      return null;
+    }
 
     // Get or create active session
     let { data: session } = await supabase
@@ -61,6 +93,12 @@ export class AIAPI {
   }
 
   static async loadSessionHistory(sessionId: string): Promise<ChatMessage[]> {
+    if (!isSupabaseConfigured()) {
+      // Return empty history for developer mode
+      this.messageHistory = [];
+      return this.messageHistory;
+    }
+
     const { data: logs, error } = await supabase
       .from('ai_logs')
       .select('*')
@@ -96,6 +134,18 @@ export class AIAPI {
 
   // AI Processing
   static async processMessage(message: string, context?: AIContext): Promise<ChatMessage> {
+    if (!isSupabaseConfigured()) {
+      // Return mock response for developer mode
+      const mockResponse: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        type: 'assistant',
+        content: "I'm running in developer mode. To enable full AI functionality, please configure your Supabase connection.",
+        timestamp: new Date(),
+        confidence: 0.8
+      };
+      return mockResponse;
+    }
+
     const session = await this.getCurrentSession();
     if (!session) throw new Error('No active session');
 
@@ -164,6 +214,29 @@ export class AIAPI {
 
   // Enhanced CRM Intelligence Methods
   static async getPipelineAnalysis(): Promise<PipelineAnalysis> {
+    if (!isSupabaseConfigured()) {
+      // Return mock pipeline analysis for developer mode
+      return {
+        total_deals: 15,
+        total_value: 125000,
+        conversion_rate: 0.25,
+        avg_deal_size: 8333,
+        stage_distribution: {
+          'Prospecting': 5,
+          'Qualification': 4,
+          'Proposal': 3,
+          'Negotiation': 2,
+          'Closed Won': 1
+        },
+        trends: {
+          deals_this_month: 8,
+          deals_last_month: 6,
+          value_this_month: 75000,
+          value_last_month: 50000
+        }
+      };
+    }
+
     try {
       const response = await fetch(`${supabaseUrl}/functions/v1/ai-assistant/api/pipeline-analysis`, {
         method: 'GET',
@@ -184,6 +257,33 @@ export class AIAPI {
   }
   
   static async getTopLeads(count: number = 3): Promise<any[]> {
+    if (!isSupabaseConfigured()) {
+      // Return mock top leads for developer mode
+      return [
+        {
+          id: 'mock-lead-1',
+          name: 'John Doe',
+          company: 'Acme Corp',
+          score: 85,
+          last_activity: '2 days ago'
+        },
+        {
+          id: 'mock-lead-2',
+          name: 'Jane Smith',
+          company: 'Tech Solutions',
+          score: 78,
+          last_activity: '1 week ago'
+        },
+        {
+          id: 'mock-lead-3',
+          name: 'Bob Johnson',
+          company: 'Innovation Inc',
+          score: 72,
+          last_activity: '3 days ago'
+        }
+      ].slice(0, count);
+    }
+
     try {
       const response = await fetch(`${supabaseUrl}/functions/v1/ai-assistant/api/top-leads?count=${count}`, {
         method: 'GET',
@@ -204,6 +304,16 @@ export class AIAPI {
   }
   
   static async generateEmailDraft(dealId: string, purpose: string): Promise<EmailDraft> {
+    if (!isSupabaseConfigured()) {
+      // Return mock email draft for developer mode
+      return {
+        subject: `Follow-up on ${purpose}`,
+        body: `Hi there,\n\nI wanted to follow up on our recent conversation about ${purpose}. I believe we have a great opportunity to work together.\n\nLet me know if you'd like to schedule a call to discuss further.\n\nBest regards`,
+        suggested_send_time: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        confidence: 0.8
+      };
+    }
+
     try {
       const response = await fetch(`${supabaseUrl}/functions/v1/ai-assistant/api/email-draft`, {
         method: 'POST',
@@ -229,6 +339,23 @@ export class AIAPI {
   }
   
   static async getUserPerformance(userId: string): Promise<UserPerformance> {
+    if (!isSupabaseConfigured() || !isValidUUID(userId)) {
+      // Return mock user performance for developer mode
+      return {
+        deals_closed: 12,
+        revenue_generated: 150000,
+        conversion_rate: 0.3,
+        avg_deal_cycle: 45,
+        activity_score: 85,
+        trends: {
+          deals_this_quarter: 5,
+          deals_last_quarter: 7,
+          revenue_this_quarter: 75000,
+          revenue_last_quarter: 75000
+        }
+      };
+    }
+
     try {
       const response = await fetch(`${supabaseUrl}/functions/v1/ai-assistant/api/user-performance/${userId}`, {
         method: 'GET',
@@ -250,6 +377,22 @@ export class AIAPI {
 
   // User Preferences
   static async getUserPreferences(userId: string): Promise<AIPreferences> {
+    if (!isSupabaseConfigured() || !isValidUUID(userId)) {
+      // Return mock preferences for developer mode
+      return {
+        id: 'mock-preferences-id',
+        user_id: userId,
+        response_style: 'professional',
+        auto_suggestions: true,
+        digest_frequency: 'daily',
+        preferred_timezone: 'UTC',
+        notification_settings: { mentions: true, digests: true, alerts: true },
+        data_access_level: 'full',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+    }
+
     const { data: preferences, error } = await supabase
       .from('ai_preferences')
       .select('*')
@@ -293,6 +436,11 @@ export class AIAPI {
   }
 
   static async updateUserPreferences(userId: string, preferences: Partial<AIPreferences>): Promise<void> {
+    if (!isSupabaseConfigured() || !isValidUUID(userId)) {
+      // Skip update in developer mode
+      return;
+    }
+
     const { error } = await supabase
       .from('ai_preferences')
       .update(preferences)
@@ -311,8 +459,13 @@ export class AIAPI {
     processingTime?: number,
     confidence?: number
   ): Promise<void> {
+    if (!isSupabaseConfigured()) {
+      // Skip logging in developer mode
+      return;
+    }
+
     const { data: user } = await supabase.auth.getUser();
-    if (!user.user) return;
+    if (!user.user || !isValidUUID(user.user.id)) return;
 
     await supabase
       .from('ai_logs')
@@ -330,6 +483,21 @@ export class AIAPI {
 
   // Analytics
   static async getAIAnalytics(userId: string, timeRange: 'day' | 'week' | 'month' = 'week'): Promise<any> {
+    if (!isSupabaseConfigured() || !isValidUUID(userId)) {
+      // Return mock analytics for developer mode
+      return {
+        total_interactions: 25,
+        avg_confidence: 0.85,
+        response_types: {
+          general: 15,
+          analytics: 5,
+          suggestion: 3,
+          command: 2
+        },
+        avg_processing_time: 1200
+      };
+    }
+
     const startDate = new Date();
     switch (timeRange) {
       case 'day':

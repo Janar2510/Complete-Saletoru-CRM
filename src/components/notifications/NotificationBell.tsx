@@ -35,7 +35,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, []); // Added empty dependency array to prevent multiple subscriptions
   
   // Handle clicks outside to close dropdown
   useEffect(() => {
