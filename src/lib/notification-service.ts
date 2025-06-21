@@ -2,6 +2,10 @@ import { supabase } from './supabase';
 import { Notification, NotificationFilters, NotificationPreferences } from '../types/notifications';
 
 export class NotificationService {
+  private static channel: any = null;
+  private static callbacks: Set<(notification: Notification) => void> = new Set();
+  private static isSubscribed = false;
+
   /**
    * Get notifications for the current user
    */
@@ -207,6 +211,50 @@ export class NotificationService {
   }
   
   /**
+   * Initialize the channel subscription if not already done
+   */
+  private static async initializeChannel() {
+    if (this.isSubscribed || !supabase) {
+      return;
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.warn('No authenticated user found');
+        return;
+      }
+
+      this.channel = supabase
+        .channel('user_notifications')
+        .on('postgres_changes', 
+          { 
+            event: 'INSERT', 
+            schema: 'public', 
+            table: 'user_notifications',
+            filter: `user_id=eq.${user.id}`
+          }, 
+          (payload) => {
+            const notification = payload.new as Notification;
+            // Call all registered callbacks
+            this.callbacks.forEach(callback => {
+              try {
+                callback(notification);
+              } catch (error) {
+                console.error('Error in notification callback:', error);
+              }
+            });
+          }
+        )
+        .subscribe();
+      
+      this.isSubscribed = true;
+    } catch (error) {
+      console.error('Error initializing notification channel:', error);
+    }
+  }
+
+  /**
    * Subscribe to real-time notifications
    */
   static subscribeToNotifications(callback: (notification: Notification) => void) {
@@ -216,23 +264,23 @@ export class NotificationService {
     }
 
     try {
-      const channel = supabase
-        .channel('user_notifications')
-        .on('postgres_changes', 
-          { 
-            event: 'INSERT', 
-            schema: 'public', 
-            table: 'user_notifications',
-            filter: `user_id=eq.${supabase.auth.getUser().then(res => res.data.user?.id)}`
-          }, 
-          (payload) => {
-            callback(payload.new as Notification);
-          }
-        )
-        .subscribe();
+      // Add callback to the set
+      this.callbacks.add(callback);
       
+      // Initialize channel if not already done
+      this.initializeChannel();
+      
+      // Return unsubscribe function
       return () => {
-        supabase.removeChannel(channel);
+        // Remove this specific callback
+        this.callbacks.delete(callback);
+        
+        // If no more callbacks, unsubscribe from the channel
+        if (this.callbacks.size === 0 && this.channel) {
+          supabase.removeChannel(this.channel);
+          this.channel = null;
+          this.isSubscribed = false;
+        }
       };
     } catch (error) {
       console.error('Error subscribing to notifications:', error);
