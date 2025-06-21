@@ -32,6 +32,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { NotificationPreferencesPanel } from '../components/notifications/NotificationPreferencesPanel';
 import { supabase } from '../lib/supabase';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const Settings: React.FC = () => {
   const { user, updateUserRole } = useAuth();
@@ -43,11 +44,12 @@ const Settings: React.FC = () => {
     const params = new URLSearchParams(location.search);
     return params.get('tab') || 'account';
   });
+  const { t, i18n } = useTranslation();
   
   // User settings state
   const [userSettings, setUserSettings] = useState({
     theme: 'dark',
-    language: 'en',
+    language: i18n.language,
     timezone: 'UTC',
     notification_preferences: {
       email_notifications: true,
@@ -86,7 +88,10 @@ const Settings: React.FC = () => {
       if (error) throw error;
       
       if (data) {
-        setUserSettings(data);
+        setUserSettings({
+          ...data,
+          language: i18n.language // Ensure language is synced with i18n
+        });
       }
     } catch (err) {
       console.error('Error loading user settings:', err);
@@ -103,6 +108,12 @@ const Settings: React.FC = () => {
       setLoading(true);
       setError(null);
       setSuccess(false);
+      
+      // Update language if changed
+      if (userSettings.language !== i18n.language) {
+        i18n.changeLanguage(userSettings.language);
+        localStorage.setItem('lang', userSettings.language);
+      }
       
       const { data, error } = await supabase
         .from('user_settings')
@@ -129,20 +140,20 @@ const Settings: React.FC = () => {
   const settingsCategories = [
     {
       id: 'account',
-      title: 'Account & Profile',
-      description: 'Manage your personal account settings',
+      title: t('settings.accountSettings'),
+      description: t('settings.profileInformation'),
       icon: User,
       color: 'from-blue-500/20 to-blue-600/20',
       iconColor: 'text-blue-400',
       items: [
-        { name: 'Profile Information', description: 'Update your name, email, and avatar' },
-        { name: 'Password & Security', description: 'Change password and security settings' },
-        { name: 'Preferences', description: 'Set your timezone, language, and display options' },
+        { name: t('settings.profileInformation'), description: 'Update your name, email, and avatar' },
+        { name: t('settings.passwordSecurity'), description: 'Change password and security settings' },
+        { name: t('settings.preferences'), description: 'Set your timezone, language, and display options' },
       ]
     },
     {
       id: 'notifications',
-      title: 'Notifications',
+      title: t('common.notifications'),
       description: 'Manage your notification preferences',
       icon: Bell,
       color: 'from-purple-500/20 to-purple-600/20',
@@ -269,7 +280,7 @@ const Settings: React.FC = () => {
             <Card className="p-6 bg-surface/80 backdrop-blur-sm border border-dark-200 shadow-glass">
               <h2 className="text-xl font-semibold text-white mb-6 flex items-center">
                 <User className="w-5 h-5 mr-2 text-blue-400" />
-                Account Settings
+                {t('settings.accountSettings')}
               </h2>
               
               {error && (
@@ -290,7 +301,7 @@ const Settings: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-white mb-2">
-                      Full Name
+                      {t('auth.fullName')}
                     </label>
                     <input
                       type="text"
@@ -302,7 +313,7 @@ const Settings: React.FC = () => {
                   
                   <div>
                     <label className="block text-sm font-medium text-white mb-2">
-                      Email Address
+                      {t('auth.email')}
                     </label>
                     <input
                       type="email"
@@ -314,12 +325,12 @@ const Settings: React.FC = () => {
                 </div>
                 
                 <div className="border-t border-dark-200 pt-6">
-                  <h3 className="text-lg font-medium text-white mb-4">Preferences</h3>
+                  <h3 className="text-lg font-medium text-white mb-4">{t('settings.preferences')}</h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-white mb-2">
-                        Theme
+                        {t('settings.theme')}
                       </label>
                       <div className="flex space-x-4">
                         <label className={`flex items-center justify-center p-3 rounded-lg border-2 transition-colors cursor-pointer ${
@@ -336,7 +347,7 @@ const Settings: React.FC = () => {
                             className="sr-only"
                           />
                           <Moon className="w-5 h-5 text-white" />
-                          <span className="ml-2 text-white">Dark</span>
+                          <span className="ml-2 text-white">{t('settings.dark')}</span>
                         </label>
                         
                         <label className={`flex items-center justify-center p-3 rounded-lg border-2 transition-colors cursor-pointer ${
@@ -353,14 +364,14 @@ const Settings: React.FC = () => {
                             className="sr-only"
                           />
                           <Sun className="w-5 h-5 text-white" />
-                          <span className="ml-2 text-white">Light</span>
+                          <span className="ml-2 text-white">{t('settings.light')}</span>
                         </label>
                       </div>
                     </div>
                     
                     <div>
                       <label className="block text-sm font-medium text-white mb-2">
-                        Language
+                        {t('settings.language')}
                       </label>
                       <select
                         value={userSettings.language}
@@ -368,16 +379,13 @@ const Settings: React.FC = () => {
                         className="w-full px-3 py-2 bg-dark-200/50 border border-dark-300 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent"
                       >
                         <option value="en">English</option>
-                        <option value="es">Spanish</option>
-                        <option value="fr">French</option>
-                        <option value="de">German</option>
-                        <option value="ja">Japanese</option>
+                        <option value="et">Eesti</option>
                       </select>
                     </div>
                     
                     <div>
                       <label className="block text-sm font-medium text-white mb-2">
-                        Timezone
+                        {t('settings.timezone')}
                       </label>
                       <select
                         value={userSettings.timezone}
@@ -391,6 +399,7 @@ const Settings: React.FC = () => {
                         <option value="America/Los_Angeles">Pacific Time (PT)</option>
                         <option value="Europe/London">London (GMT)</option>
                         <option value="Europe/Paris">Paris (CET)</option>
+                        <option value="Europe/Tallinn">Tallinn (EET)</option>
                         <option value="Asia/Tokyo">Tokyo (JST)</option>
                       </select>
                     </div>
@@ -398,14 +407,14 @@ const Settings: React.FC = () => {
                 </div>
                 
                 <div className="border-t border-dark-200 pt-6">
-                  <h3 className="text-lg font-medium text-white mb-4">Notification Preferences</h3>
+                  <h3 className="text-lg font-medium text-white mb-4">{t('settings.notificationPreferences')}</h3>
                   
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <Mail className="w-5 h-5 text-dark-400" />
                         <div>
-                          <p className="text-white">Email Notifications</p>
+                          <p className="text-white">{t('settings.emailNotifications')}</p>
                           <p className="text-sm text-dark-400">Receive notifications via email</p>
                         </div>
                       </div>
@@ -430,7 +439,7 @@ const Settings: React.FC = () => {
                       <div className="flex items-center space-x-3">
                         <Smartphone className="w-5 h-5 text-dark-400" />
                         <div>
-                          <p className="text-white">Push Notifications</p>
+                          <p className="text-white">{t('settings.pushNotifications')}</p>
                           <p className="text-sm text-dark-400">Receive push notifications on your devices</p>
                         </div>
                       </div>
@@ -459,7 +468,7 @@ const Settings: React.FC = () => {
                           <VolumeX className="w-5 h-5 text-dark-400" />
                         )}
                         <div>
-                          <p className="text-white">Sound Alerts</p>
+                          <p className="text-white">{t('settings.soundAlerts')}</p>
                           <p className="text-sm text-dark-400">Play sound when new notifications arrive</p>
                         </div>
                       </div>
@@ -484,12 +493,12 @@ const Settings: React.FC = () => {
                 
                 {isAdmin && (
                   <div className="border-t border-dark-200 pt-6">
-                    <h3 className="text-lg font-medium text-white mb-4">Admin Settings</h3>
+                    <h3 className="text-lg font-medium text-white mb-4">{t('settings.adminSettings')}</h3>
                     
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-white mb-2">
-                          User Role
+                          {t('settings.userRole')}
                         </label>
                         <select
                           value={user?.user_metadata?.role || 'user'}
@@ -519,7 +528,7 @@ const Settings: React.FC = () => {
                     ) : (
                       <>
                         <Save className="w-5 h-5" />
-                        <span>Save Settings</span>
+                        <span>{t('settings.saveSettings')}</span>
                       </>
                     )}
                   </button>
@@ -563,7 +572,7 @@ const Settings: React.FC = () => {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">{t('common.settings')}</h1>
           <p className="text-dark-400">Manage your SaleToru CRM configuration</p>
         </div>
         
@@ -584,7 +593,7 @@ const Settings: React.FC = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-dark-400" />
             <input
               type="text"
-              placeholder="Search settings..."
+              placeholder={`${t('common.search')} ${t('common.settings')}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 pr-4 py-2 bg-dark-200/70 border border-dark-300 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent w-full"

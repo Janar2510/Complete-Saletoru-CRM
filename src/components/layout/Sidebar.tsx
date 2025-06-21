@@ -21,6 +21,7 @@ import {
   CheckSquare
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -29,6 +30,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   
   const userName = user?.user_metadata?.full_name || 'User';
   const userRole = user?.user_metadata?.role || 'user';
@@ -36,22 +38,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
   const isAdmin = userRole === 'admin' || userRole === 'developer_admin';
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'Deals', href: '/deals', icon: Handshake, badge: 8 },
-    { name: 'Contacts', href: '/contacts', icon: Users },
-    { name: 'Organizations', href: '/organizations', icon: Building2 },
-    { name: 'Tasks', href: '/tasks', icon: CheckSquare, badge: 'New' },
-    { name: 'Offers', href: '/offers', icon: FileText },
-    { name: 'Email Templates', href: '/email-templates', icon: Send },
-    { name: 'Lead Scoring', href: '/lead-scoring', icon: TrendingUp, badge: 'New' },
-    { name: 'Activities', href: '/activities', icon: Activity, badge: 3 },
-    { name: 'Calendar', href: '/calendar', icon: Calendar },
-    { name: 'Emails', href: '/emails', icon: Mail },
-    { name: 'Leads', href: '/leads', icon: UserCheck, badge: 'New' },
-    { name: 'Products', href: '/products', icon: Package },
-    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-    { name: 'Marketplace', href: '/marketplace', icon: Store, badge: 'New' },
-    { name: 'Settings', href: '/settings', icon: Settings },
+    { name: t('common.dashboard'), href: '/', icon: LayoutDashboard },
+    { name: t('common.deals'), href: '/deals', icon: Handshake, badge: 8 },
+    { name: t('common.contacts'), href: '/contacts', icon: Users },
+    { name: t('common.organizations'), href: '/organizations', icon: Building2 },
+    { name: t('common.tasks'), href: '/tasks', icon: CheckSquare, badge: 'New' },
+    { name: t('common.offers'), href: '/offers', icon: FileText },
+    { name: t('common.emailTemplates'), href: '/email-templates', icon: Send },
+    { name: t('common.leadScoring'), href: '/lead-scoring', icon: TrendingUp, badge: 'New' },
+    { name: t('common.activities'), href: '/activities', icon: Activity, badge: 3 },
+    { name: t('common.calendar'), href: '/calendar', icon: Calendar },
+    { name: t('common.emails'), href: '/emails', icon: Mail },
+    { name: t('common.leads'), href: '/leads', icon: UserCheck, badge: 'New' },
+    { name: t('common.products'), href: '/products', icon: Package },
+    { name: t('common.analytics'), href: '/analytics', icon: BarChart3 },
+    { name: t('common.marketplace'), href: '/marketplace', icon: Store, badge: 'New' },
+    { name: t('common.settings'), href: '/settings', icon: Settings },
   ];
 
   // Admin-only navigation items

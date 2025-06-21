@@ -29,12 +29,14 @@ import { TaskGeneratorModal } from '../components/ai/TaskGeneratorModal';
 import { AITaskAPI } from '../lib/ai-task-api';
 import type { TaskSuggestion, ProductivityInsight, FocusTimeSlot, Bottleneck } from '../types/ai';
 import { Card } from '../components/common/Card';
+import { useTranslation } from 'react-i18next';
 
 const Dashboard: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
   const { currentPlan } = usePlan();
   const { withFeatureAccess, FeatureLockModal } = useFeatureLock(currentPlan);
   const navigate = useNavigate();
+  const { t } = useTranslation();
   
   const today = new Date();
   const userName = user?.user_metadata?.full_name?.split(' ')[0] || 'John';
@@ -231,7 +233,7 @@ const Dashboard: React.FC = () => {
 
   const productivityMetrics = [
     { 
-      label: 'Tasks Completed', 
+      label: t('tasks.completedTasks'), 
       value: 15, 
       previousValue: 12, 
       unit: 'tasks',
@@ -423,7 +425,7 @@ const Dashboard: React.FC = () => {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-white">Loading...</div>
+        <div className="text-white">{t('common.loading')}</div>
       </div>
     );
   }
@@ -443,7 +445,7 @@ const Dashboard: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">
-            {userName}'s Dashboard
+            {userName}'s {t('common.dashboard')}
           </h1>
           <p className="text-dark-400 flex items-center">
             <Calendar className="w-4 h-4 mr-2" />
@@ -463,7 +465,7 @@ const Dashboard: React.FC = () => {
           )}
           <div className="flex items-center space-x-2 text-sm text-dark-400">
             <User className="w-4 h-4" />
-            <span>Welcome back!</span>
+            <span>{t('dashboard.welcome')}</span>
           </div>
         </div>
       </div>

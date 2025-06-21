@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { usePlan } from '../../contexts/PlanContext';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { useDevMode } from '../../contexts/DevModeContext';
+import { useTranslation } from 'react-i18next';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -16,6 +17,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const { isDevMode, toggleDevMode } = useDevMode();
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const { t, i18n } = useTranslation();
 
   const handleSignOut = async () => {
     try {
@@ -43,6 +45,12 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
     }
   };
 
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'en' ? 'et' : 'en';
+    i18n.changeLanguage(newLang);
+    localStorage.setItem('lang', newLang);
+  };
+
   return (
     <header className="bg-surface/80 backdrop-blur-sm border-b border-dark-200 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -59,7 +67,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-dark-400" />
             <input
               type="text"
-              placeholder="ai.askGuru"
+              placeholder={`${t('common.search')}...`}
               className="pl-10 pr-4 py-2 bg-dark-200 border border-dark-300 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent w-80"
             />
             <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-dark-400 bg-dark-300 px-1.5 py-0.5 rounded">
@@ -88,12 +96,15 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             </button>
           )}
           
-          <div className="flex items-center space-x-2 text-sm text-dark-400">
+          <button 
+            onClick={toggleLanguage}
+            className="flex items-center space-x-2 text-sm text-dark-400 p-2 rounded-lg hover:bg-dark-200 transition-colors"
+          >
             <Globe className="w-4 h-4" />
-            <span className="bg-accent text-white px-2 py-1 rounded text-xs font-medium">EN</span>
-            <span className="text-dark-500">|</span>
-            <span>ET</span>
-          </div>
+            <span className="bg-accent text-white px-2 py-1 rounded text-xs font-medium">
+              {i18n.language.toUpperCase()}
+            </span>
+          </button>
           
           <button className="p-2 rounded-lg hover:bg-dark-200 transition-colors">
             <Calendar className="w-5 h-5 text-dark-400" />
@@ -134,7 +145,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                     onClick={() => setShowUserMenu(false)}
                   >
                     <Settings className="w-4 h-4 mr-2 text-dark-400" />
-                    Settings
+                    {t('common.settings')}
                   </Link>
                   <button
                     onClick={() => {
@@ -144,14 +155,14 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                     className="block w-full text-left px-4 py-2 text-white hover:bg-dark-200 transition-colors flex items-center"
                   >
                     <Code className="w-4 h-4 mr-2 text-purple-400" />
-                    {isDevMode ? 'Disable' : 'Enable'} Dev Mode
+                    {isDevMode ? 'Disable' : 'Enable'} {t('common.devMode')}
                   </button>
                   <button
                     onClick={handleSignOut}
                     className="block w-full text-left px-4 py-2 text-white hover:bg-dark-200 transition-colors flex items-center"
                   >
                     <LogOut className="w-4 h-4 mr-2 text-red-400" />
-                    Sign Out
+                    {t('common.signOut')}
                   </button>
                 </div>
               </div>
