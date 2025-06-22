@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Offer, OfferFilters } from '../../types/offers';
 import { OffersAPI } from '../../lib/offers-api';
+import { supabase } from '../../lib/supabase';
 import { Card } from '../common/Card';
 import { formatDistanceToNow } from 'date-fns';
 
