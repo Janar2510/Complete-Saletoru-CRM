@@ -132,6 +132,54 @@ export class DealsAPI {
     }
   }
 
+  static async getCompanies(): Promise<any[]> {
+    if (!isSupabaseConfigured || !supabase) {
+      console.warn('Supabase not configured, returning mock companies');
+      return this.getMockCompanies();
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('companies')
+        .select('id, name, domain')
+        .order('name', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching companies:', error);
+        throw new Error(`Failed to fetch companies: ${error.message}`);
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      return this.getMockCompanies();
+    }
+  }
+
+  static async getContacts(): Promise<any[]> {
+    if (!isSupabaseConfigured || !supabase) {
+      console.warn('Supabase not configured, returning mock contacts');
+      return this.getMockContacts();
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('id, first_name, last_name, email, phone')
+        .order('first_name', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching contacts:', error);
+        throw new Error(`Failed to fetch contacts: ${error.message}`);
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      return this.getMockContacts();
+    }
+  }
+
   static async getDealById(id: string): Promise<Deal | null> {
     if (!isSupabaseConfigured || !supabase) {
       return this.getMockDeals().find(deal => deal.id === id) || null;
@@ -1097,17 +1145,17 @@ export class DealsAPI {
   private static getMockDeals(): Deal[] {
     return [
       {
-        id: '1',
+        id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         deal_id: 'DEAL-2025-001',
         title: 'Enterprise Software Package',
         description: 'Annual license for enterprise software',
         value: 75000,
         currency: 'USD',
-        stage_id: '3',
-        pipeline_id: '1',
-        contact_id: '1',
-        company_id: '1',
-        owner_id: '1',
+        stage_id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
+        pipeline_id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        contact_id: 'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        company_id: 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        owner_id: 'f0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         probability: 50,
         expected_close_date: '2025-07-15',
         status: 'open',
@@ -1116,10 +1164,10 @@ export class DealsAPI {
         last_activity_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
         created_at: '2025-01-15T10:00:00Z',
         updated_at: '2025-01-15T10:00:00Z',
-        created_by: '1',
+        created_by: 'f0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         stage: {
-          id: '3',
-          pipeline_id: '1',
+          id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
+          pipeline_id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
           name: 'Proposal',
           probability: 50,
           position: 3,
@@ -1127,28 +1175,28 @@ export class DealsAPI {
           created_at: '2025-01-01T00:00:00Z'
         },
         contact: {
-          id: '1',
+          id: 'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
           first_name: 'John',
           last_name: 'Smith',
           email: 'john.smith@example.com'
         },
         company: {
-          id: '1',
+          id: 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
           name: 'Acme Corp'
         }
       },
       {
-        id: '2',
+        id: 'a1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         deal_id: 'DEAL-2025-002',
         title: 'Cloud Infrastructure',
         description: 'Cloud migration and infrastructure setup',
         value: 45000,
         currency: 'USD',
-        stage_id: '2',
-        pipeline_id: '1',
-        contact_id: '2',
-        company_id: '2',
-        owner_id: '1',
+        stage_id: 'c1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
+        pipeline_id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        contact_id: 'd1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        company_id: 'e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        owner_id: 'f0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         probability: 25,
         expected_close_date: '2025-08-30',
         status: 'open',
@@ -1157,10 +1205,10 @@ export class DealsAPI {
         last_activity_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
         created_at: '2025-02-10T14:30:00Z',
         updated_at: '2025-02-10T14:30:00Z',
-        created_by: '1',
+        created_by: 'f0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         stage: {
-          id: '2',
-          pipeline_id: '1',
+          id: 'c1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
+          pipeline_id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
           name: 'Qualified',
           probability: 25,
           position: 2,
@@ -1168,138 +1216,14 @@ export class DealsAPI {
           created_at: '2025-01-01T00:00:00Z'
         },
         contact: {
-          id: '2',
+          id: 'd1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
           first_name: 'Sarah',
           last_name: 'Johnson',
           email: 'sarah.j@example.com'
         },
         company: {
-          id: '2',
+          id: 'e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
           name: 'TechCorp'
-        }
-      },
-      {
-        id: '3',
-        deal_id: 'DEAL-2025-003',
-        title: 'Consulting Services',
-        description: 'Strategic consulting for digital transformation',
-        value: 35000,
-        currency: 'USD',
-        stage_id: '4',
-        pipeline_id: '1',
-        contact_id: '3',
-        company_id: '3',
-        owner_id: '1',
-        probability: 75,
-        expected_close_date: '2025-06-15',
-        status: 'open',
-        tags: ['consulting', 'strategy'],
-        engagement_score: 70,
-        last_activity_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        created_at: '2025-03-05T09:15:00Z',
-        updated_at: '2025-03-05T09:15:00Z',
-        created_by: '1',
-        stage: {
-          id: '4',
-          pipeline_id: '1',
-          name: 'Negotiation',
-          probability: 75,
-          position: 4,
-          color: '#F97316',
-          created_at: '2025-01-01T00:00:00Z'
-        },
-        contact: {
-          id: '3',
-          first_name: 'Michael',
-          last_name: 'Brown',
-          email: 'michael.b@example.com'
-        },
-        company: {
-          id: '3',
-          name: 'Global Industries'
-        }
-      },
-      {
-        id: '4',
-        deal_id: 'DEAL-2025-004',
-        title: 'Data Migration Project',
-        description: 'Migrate legacy data to new platform',
-        value: 28000,
-        currency: 'USD',
-        stage_id: '5',
-        pipeline_id: '1',
-        contact_id: '4',
-        company_id: '4',
-        owner_id: '1',
-        probability: 100,
-        actual_close_date: '2025-04-10',
-        status: 'won',
-        tags: ['data', 'migration', 'completed'],
-        engagement_score: 63,
-        last_activity_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-        created_at: '2025-01-20T11:45:00Z',
-        updated_at: '2025-04-10T16:30:00Z',
-        created_by: '1',
-        stage: {
-          id: '5',
-          pipeline_id: '1',
-          name: 'Closed Won',
-          probability: 100,
-          position: 5,
-          color: '#10B981',
-          created_at: '2025-01-01T00:00:00Z'
-        },
-        contact: {
-          id: '4',
-          first_name: 'Emily',
-          last_name: 'Davis',
-          email: 'emily.d@example.com'
-        },
-        company: {
-          id: '4',
-          name: 'Startup Inc'
-        }
-      },
-      {
-        id: '5',
-        deal_id: 'DEAL-2025-005',
-        title: 'Security Upgrade',
-        description: 'Enterprise security infrastructure upgrade',
-        value: 18000,
-        currency: 'USD',
-        stage_id: '6',
-        pipeline_id: '1',
-        contact_id: '5',
-        company_id: '5',
-        owner_id: '1',
-        probability: 0,
-        actual_close_date: '2025-03-15',
-        status: 'lost',
-        lost_reason: 'Competitor pricing',
-        tags: ['security', 'lost'],
-        engagement_score: 55,
-        last_activity_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        created_at: '2025-02-01T13:20:00Z',
-        updated_at: '2025-03-15T10:10:00Z',
-        created_by: '1',
-        stage: {
-          id: '6',
-          pipeline_id: '1',
-          name: 'Closed Lost',
-          probability: 0,
-          position: 6,
-          color: '#EF4444',
-          created_at: '2025-01-01T00:00:00Z'
-        },
-        contact: {
-          id: '5',
-          first_name: 'David',
-          last_name: 'Wilson',
-          email: 'david.w@example.com'
-        },
-        company: {
-          id: '5',
-          name: 'Enterprise Solutions'
         }
       }
     ];
@@ -1308,22 +1232,22 @@ export class DealsAPI {
   private static getMockPipelines(): Pipeline[] {
     return [
       {
-        id: '1',
+        id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         name: 'Sales Pipeline',
         description: 'Main sales pipeline',
         is_default: true,
         created_at: '2025-01-01T00:00:00Z',
         updated_at: '2025-01-01T00:00:00Z',
-        created_by: '1'
+        created_by: 'f0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
       },
       {
-        id: '2',
+        id: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         name: 'Enterprise Pipeline',
         description: 'Pipeline for enterprise deals',
         is_default: false,
         created_at: '2025-01-01T00:00:00Z',
         updated_at: '2025-01-01T00:00:00Z',
-        created_by: '1'
+        created_by: 'f0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
       }
     ];
   }
@@ -1331,58 +1255,104 @@ export class DealsAPI {
   private static getMockStages(): PipelineStage[] {
     return [
       {
-        id: '1',
+        id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         name: 'Lead',
         color: '#6B7280',
         probability: 10,
         position: 1,
-        pipeline_id: '1',
+        pipeline_id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         created_at: '2025-01-01T00:00:00Z'
       },
       {
-        id: '2',
+        id: 'c1eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
         name: 'Qualified',
         color: '#3B82F6',
         probability: 25,
         position: 2,
-        pipeline_id: '1',
+        pipeline_id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         created_at: '2025-01-01T00:00:00Z'
       },
       {
-        id: '3',
+        id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
         name: 'Proposal',
         color: '#F59E0B',
         probability: 50,
         position: 3,
-        pipeline_id: '1',
+        pipeline_id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         created_at: '2025-01-01T00:00:00Z'
       },
       {
-        id: '4',
+        id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14',
         name: 'Negotiation',
         color: '#F97316',
         probability: 75,
         position: 4,
-        pipeline_id: '1',
+        pipeline_id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         created_at: '2025-01-01T00:00:00Z'
       },
       {
-        id: '5',
+        id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15',
         name: 'Closed Won',
         color: '#10B981',
         probability: 100,
         position: 5,
-        pipeline_id: '1',
+        pipeline_id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         created_at: '2025-01-01T00:00:00Z'
       },
       {
-        id: '6',
+        id: 'c0eebc99-9c0b-4ef8-bb6d-6bb9bd380a16',
         name: 'Closed Lost',
         color: '#EF4444',
         probability: 0,
         position: 6,
-        pipeline_id: '1',
+        pipeline_id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
         created_at: '2025-01-01T00:00:00Z'
+      }
+    ];
+  }
+
+  private static getMockCompanies(): any[] {
+    return [
+      {
+        id: 'e0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        name: 'Acme Corp',
+        domain: 'acme.com'
+      },
+      {
+        id: 'e1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        name: 'TechCorp',
+        domain: 'techcorp.com'
+      },
+      {
+        id: 'e2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        name: 'Global Industries',
+        domain: 'global-industries.com'
+      }
+    ];
+  }
+
+  private static getMockContacts(): any[] {
+    return [
+      {
+        id: 'd0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        first_name: 'John',
+        last_name: 'Smith',
+        email: 'john.smith@example.com',
+        phone: '+1-555-0123'
+      },
+      {
+        id: 'd1eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        first_name: 'Sarah',
+        last_name: 'Johnson',
+        email: 'sarah.j@example.com',
+        phone: '+1-555-0124'
+      },
+      {
+        id: 'd2eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
+        first_name: 'Michael',
+        last_name: 'Brown',
+        email: 'michael.b@example.com',
+        phone: '+1-555-0125'
       }
     ];
   }

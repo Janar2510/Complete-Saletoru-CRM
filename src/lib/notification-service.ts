@@ -214,6 +214,7 @@ export class NotificationService {
    * Initialize the channel subscription if not already done
    */
   private static async initializeChannel() {
+    // Return early if already subscribed
     if (this.isSubscribed || !supabase) {
       return;
     }
@@ -248,6 +249,7 @@ export class NotificationService {
         )
         .subscribe();
       
+      // Set subscribed flag immediately after subscribe call
       this.isSubscribed = true;
     } catch (error) {
       console.error('Error initializing notification channel:', error);

@@ -60,7 +60,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     try {
       setLoading(true);
       
-      // Load pipeline stages
+      // Load pipeline stages - use proper UUID format for mock data
       const stages = await DealsAPI.getPipelineStages(pipelineId);
       
       // Load deals for this pipeline
