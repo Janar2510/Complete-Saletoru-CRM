@@ -20,7 +20,7 @@ export const PipelineOverviewWidget: React.FC<PipelineOverviewWidgetProps> = ({ 
         {stages.map((stage, index) => (
           <div key={index} className="flex justify-between items-center px-3 py-2 rounded-lg bg-gradient-to-r from-dark-300 to-dark-100 hover:from-dark-200 transition-all duration-200">
             <div className="flex items-center space-x-3">
-              <span className={\`w-3 h-3 rounded-full \${stage.color}\`}></span>
+              <span className={`w-3 h-3 rounded-full ${stage.color}`}></span>
               <span className="text-white font-medium">{stage.name}</span>
             </div>
             <div className="text-sm text-dark-300">
