@@ -1,50 +1,45 @@
+// SuggestedTasksWidget.tsx
+
 import React from 'react';
-import { Card } from '@/components/common/Card';
-import { CheckCircle, PlusCircle, ArrowRight } from 'lucide-react';
+import { ClipboardCheck, Lightbulb } from 'lucide-react';
+import { Card } from '../common/Card';
 
-interface SuggestedTasksWidgetProps {
-  onCreateTask: () => void;
-  onViewAllTasks: () => void;
-  onShowAllSuggestions: () => void;
-}
+export const SuggestedTasksWidget: React.FC = () => {
+  const suggestedTasks = [
+    {
+      id: '1',
+      title: 'Follow up with warm leads',
+      icon: ClipboardCheck,
+    },
+    {
+      id: '2',
+      title: 'Draft Q3 sales email sequence',
+      icon: Lightbulb,
+    },
+    {
+      id: '3',
+      title: 'Schedule feedback sync with team',
+      icon: ClipboardCheck,
+    },
+  ];
 
-export const SuggestedTasksWidget: React.FC<SuggestedTasksWidgetProps> = ({
-  onCreateTask,
-  onViewAllTasks,
-  onShowAllSuggestions,
-}) => {
   return (
-    <Card className="p-4">
-      <h2 className="text-lg font-semibold text-white mb-4">Suggested Tasks</h2>
-
-      <div className="space-y-3">
-        <button
-          onClick={onCreateTask}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-dark-200 hover:bg-dark-300 text-white transition-all"
-        >
-          <span className="flex items-center space-x-2">
-            <PlusCircle className="w-4 h-4" />
-            <span>Create Task</span>
-          </span>
-        </button>
-
-        <button
-          onClick={onShowAllSuggestions}
-          className="w-full flex items-center justify-between px-3 py-2 rounded-md bg-dark-200 hover:bg-dark-300 text-white transition-all"
-        >
-          <span className="flex items-center space-x-2">
-            <CheckCircle className="w-4 h-4 text-green-400" />
-            <span>View AI Suggestions</span>
-          </span>
-        </button>
-
-        <button
-          onClick={onViewAllTasks}
-          className="text-sm text-accent hover:underline flex items-center"
-        >
-          View All Tasks <ArrowRight className="w-4 h-4 ml-1" />
-        </button>
+    <Card className="p-4 border border-dark-200/50">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-lg font-semibold text-white">Suggested Tasks</h3>
       </div>
+
+      <ul className="space-y-2">
+        {suggestedTasks.map((task) => (
+          <li
+            key={task.id}
+            className="flex items-center space-x-3 bg-dark-200 rounded-md px-3 py-2 hover:bg-dark-100 transition-all"
+          >
+            <task.icon className="w-5 h-5 text-accent" />
+            <span className="text-sm text-white">{task.title}</span>
+          </li>
+        ))}
+      </ul>
     </Card>
   );
 };
