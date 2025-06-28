@@ -2,34 +2,46 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { Calendar, User, Bot, Clock, CheckCircle, Target, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { TaskSummaryWidget } from '../components/dashboard/TaskSummaryWidget';
-import { PipelineOverviewWidget } from '../components/dashboard/PipelineOverviewWidget';
-import { AITipWidget } from '../components/dashboard/AITipWidget';
-import { PerformanceWidget } from '../components/dashboard/PerformanceWidget';
-import { TodayTasksPanel } from '../components/dashboard/TodayTasksPanel';
-import { DealUpdatesPanel } from '../components/dashboard/DealUpdatesPanel';
-import { QuickActionsToolbar } from '../components/dashboard/QuickActionsToolbar';
-import { EnhancedGuruAssistant } from '../components/dashboard/EnhancedGuruAssistant';
-import { PlanUsageWidget } from '../components/dashboard/PlanUsageWidget';
-import { LeadScoreWidget } from '../components/dashboard/LeadScoreWidget';
-import { useAuth } from '../contexts/AuthContext';
-import { usePlan } from '../contexts/PlanContext';
-import { useFeatureLock } from '../hooks/useFeatureLock';
-import { ContactsAPI } from '../lib/contacts-api';
-import { DealsAPI } from '../lib/deals-api';
-import { SaleToruGuru } from '../components/ai/SaleToruGuru';
-import { GuruInsightPanel } from '../components/ai/GuruInsightPanel';
-import { ProductivityWidget } from '../components/dashboard/ProductivityWidget';
-import { SuggestedTasksWidget } from '../components/dashboard/SuggestedTasksWidget';
-import { TaskSuggestionPanel } from '../components/ai/TaskSuggestionPanel';
-import { BottleneckPanel } from '../components/ai/BottleneckPanel';
-import { ProductivityInsightsPanel } from '../components/ai/ProductivityInsightsPanel';
-import { FocusTimePanel } from '../components/ai/FocusTimePanel';
-import { TaskGeneratorModal } from '../components/ai/TaskGeneratorModal';
-import { AITaskAPI } from '../lib/ai-task-api';
-import type { TaskSuggestion, ProductivityInsight, FocusTimeSlot, Bottleneck } from '../types/ai';
-import { Card } from '../components/common/Card';
+
+import { TaskSummaryWidget } from '@/components/dashboard/TaskSummaryWidget';
+import { PipelineOverviewWidget } from '@/components/dashboard/PipelineOverviewWidget';
+import { AITipWidget } from '@/components/dashboard/AITipWidget';
+import { PerformanceWidget } from '@/components/dashboard/PerformanceWidget';
+import { TodayTasksPanel } from '@/components/dashboard/TodayTasksPanel';
+import { DealUpdatesPanel } from '@/components/dashboard/DealUpdatesPanel';
+import { QuickActionsToolbar } from '@/components/dashboard/QuickActionsToolbar';
+import { EnhancedGuruAssistant } from '@/components/dashboard/EnhancedGuruAssistant';
+import { PlanUsageWidget } from '@/components/dashboard/PlanUsageWidget';
+import { LeadScoreWidget } from '@/components/dashboard/LeadScoreWidget';
+import { ProductivityWidget } from '@/components/dashboard/ProductivityWidget';
+import { SuggestedTasksWidget } from '@/components/dashboard/SuggestedTasksWidget';
+
+import { SaleToruGuru } from '@/components/ai/SaleToruGuru';
+import { GuruInsightPanel } from '@/components/ai/GuruInsightPanel';
+import { TaskSuggestionPanel } from '@/components/ai/TaskSuggestionPanel';
+import { BottleneckPanel } from '@/components/ai/BottleneckPanel';
+import { ProductivityInsightsPanel } from '@/components/ai/ProductivityInsightsPanel';
+import { FocusTimePanel } from '@/components/ai/FocusTimePanel';
+import { TaskGeneratorModal } from '@/components/ai/TaskGeneratorModal';
+
+import { useAuth } from '@/contexts/AuthContext';
+import { usePlan } from '@/contexts/PlanContext';
+import { useFeatureLock } from '@/hooks/useFeatureLock';
+
+import { ContactsAPI } from '@/lib/contacts-api';
+import { DealsAPI } from '@/lib/deals-api';
+import { AITaskAPI } from '@/lib/ai-task-api';
+
+import type {
+  TaskSuggestion,
+  ProductivityInsight,
+  FocusTimeSlot,
+  Bottleneck,
+} from '@/types/ai';
+
+import { Card } from '@/components/common/Card';
 import { useTranslation } from 'react-i18next';
+
 
 const Dashboard: React.FC = () => {
   const { user, loading: authLoading } = useAuth();
