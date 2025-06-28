@@ -1,89 +1,95 @@
 import React from 'react';
-import { Card } from '@/components/common/Card';
-import { BarChart2, TrendingUp } from 'lucide-react';
+import { Plus, Users, Calendar, Mail, FileText, Target } from 'lucide-react';
+import { Card } from '../common/Card';
 
-interface Lead {
+interface QuickAction {
   id: string;
-  name: string;
-  company: string;
-  score: number;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  onClick: () => void;
 }
 
-interface Deal {
-  id: string;
-  title: string;
-  value: number;
-  score: number;
+interface QuickActionsToolbarProps {
+  onCreateDeal: () => void;
+  onAddContact: () => void;
+  onScheduleMeeting: () => void;
+  onSendEmail: () => void;
+  onCreateTask: () => void;
 }
 
-interface LeadScoreWidgetProps {
-  topLeads: Lead[];
-  topDeals: Deal[];
-  onViewAllLeads: () => void;
-  onViewAllDeals: () => void;
-}
-
-export const LeadScoreWidget: React.FC<LeadScoreWidgetProps> = ({
-  topLeads,
-  topDeals,
-  onViewAllLeads,
-  onViewAllDeals,
+export const QuickActionsToolbar: React.FC<QuickActionsToolbarProps> = ({
+  onCreateDeal,
+  onAddContact,
+  onScheduleMeeting,
+  onSendEmail,
+  onCreateTask,
 }) => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {/* Top Leads */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
-            <BarChart2 className="w-5 h-5 text-blue-400" />
-            <span>Top Leads</span>
-          </h3>
-          <button
-            onClick={onViewAllLeads}
-            className="text-sm text-blue-400 hover:underline"
-          >
-            View All
-          </button>
-        </div>
-        <ul className="divide-y divide-dark-200/50">
-          {topLeads.map((lead) => (
-            <li key={lead.id} className="py-2 flex justify-between items-center">
-              <div>
-                <div className="text-white font-medium">{lead.name}</div>
-                <div className="text-sm text-dark-300">{lead.company}</div>
-              </div>
-              <div className="text-sm font-semibold text-blue-300">{lead.score}</div>
-            </li>
-          ))}
-        </ul>
-      </Card>
+  const actions: QuickAction[] = [
+    {
+      id: 'create-deal',
+      label: 'Add Deal',
+      icon: Target,
+      color: 'from-accent to-purple-500',
+      onClick: onCreateDeal,
+    },
+    {
+      id: 'add-contact',
+      label: 'Add Contact',
+      icon: Users,
+      color: 'from-green-500 to-green-600',
+      onClick: onAddContact,
+    },
+    {
+      id: 'schedule-meeting',
+      label: 'Schedule Meeting',
+      icon: Calendar,
+      color: 'from-blue-500 to-blue-600',
+      onClick: onScheduleMeeting,
+    },
+    {
+      id: 'send-email',
+      label: 'Send Email',
+      icon: Mail,
+      color: 'from-purple-500 to-purple-600',
+      onClick: onSendEmail,
+    },
+    {
+      id: 'create-task',
+      label: 'New Task',
+      icon: Plus,
+      color: 'from-orange-500 to-orange-600',
+      onClick: onCreateTask,
+    },
+  ];
 
-      {/* Top Deals */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
-            <TrendingUp className="w-5 h-5 text-green-400" />
-            <span>Top Deals</span>
-          </h3>
+  return (
+    <Card className="p-4 border border-dark-200/50">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-lg font-semibold text-white">Quick Actions</h3>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {actions.map(action => (
           <button
-            onClick={onViewAllDeals}
-            className="text-sm text-green-400 hover:underline"
+            key={action.id}
+            onClick={() => {
+              try {
+                action.onClick();
+              } catch (e) {
+                console.error(`Quick Action failed: ${action.label}`, e);
+              }
+            }}
+            className={`bg-gradient-to-br ${action.color} text-white p-3 rounded-lg transition-all duration-200 hover:shadow-lg hover:scale-105 flex flex-col items-center space-y-2 group`}
+            style={{
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            }}
           >
-            View All
+            <action.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            <span className="text-sm font-medium">{action.label}</span>
           </button>
-        </div>
-        <ul className="divide-y divide-dark-200/50">
-          {topDeals.map((deal) => (
-            <li key={deal.id} className="py-2 flex justify-between items-center">
-              <div>
-                <div className="text-white font-medium">{deal.title}</div>
-                <div className="text-sm text-dark-300">${deal.value.toLocaleString()}</div>
-              </div>
-              <div className="text-sm font-semibold text-green-300">{deal.score}</div>
-            </li>
-          ))}
-        </ul>
-      </Card>
-    </div>
+        ))}
+      </div>
+    </Card>
   );
 };
