@@ -1,22 +1,24 @@
 import React from 'react';
-import { TrendingUp, User, Target, ArrowRight } from 'lucide-react';
-import { Card } from '../common/Card';
-import { LeadScoreBadge } from '../contacts/LeadScoreBadge';
-import { DealScoreBadge } from '../deals/DealScoreBadge';
+import { Card } from '@/components/common/Card';
+import { BarChart2, TrendingUp } from 'lucide-react';
+
+interface Lead {
+  id: string;
+  name: string;
+  company: string;
+  score: number;
+}
+
+interface Deal {
+  id: string;
+  title: string;
+  value: number;
+  score: number;
+}
 
 interface LeadScoreWidgetProps {
-  topLeads: {
-    id: string;
-    name: string;
-    company?: string;
-    score: number;
-  }[];
-  topDeals: {
-    id: string;
-    title: string;
-    value: number;
-    score: number;
-  }[];
+  topLeads: Lead[];
+  topDeals: Deal[];
   onViewAllLeads: () => void;
   onViewAllDeals: () => void;
 }
@@ -25,92 +27,63 @@ export const LeadScoreWidget: React.FC<LeadScoreWidgetProps> = ({
   topLeads,
   topDeals,
   onViewAllLeads,
-  onViewAllDeals
+  onViewAllDeals,
 }) => {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-    }).format(value);
-  };
-
   return (
-    <Card className="p-6 h-full border border-dark-200/50 bg-gradient-to-br from-dark-100/50 to-dark-100/30">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2">
-          <TrendingUp className="w-5 h-5 text-accent" />
-          <h3 className="text-lg font-semibold text-white">Lead Scoring</h3>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Top Leads */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
+            <BarChart2 className="w-5 h-5 text-blue-400" />
+            <span>Top Leads</span>
+          </h3>
+          <button
+            onClick={onViewAllLeads}
+            className="text-sm text-blue-400 hover:underline"
+          >
+            View All
+          </button>
         </div>
-      </div>
-
-      <div className="space-y-6">
-        {/* Top Leads */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-white flex items-center space-x-2">
-              <User className="w-4 h-4 text-blue-400 mr-2" />
-              <span>Top Leads</span>
-            </h4>
-            <button 
-              onClick={onViewAllLeads}
-              className="text-xs text-accent hover:text-accent/80 transition-colors flex items-center"
-            >
-              View All
-              <ArrowRight className="w-3 h-3 ml-1" />
-            </button>
-          </div>
-
-          <div className="space-y-2">
-            {topLeads.map(lead => (
-              <div 
-                key={lead.id}
-                className="flex items-center justify-between p-2 bg-dark-200/50 rounded-lg hover:bg-dark-200 transition-colors backdrop-blur-sm border border-dark-300/30"
-              >
-                <div>
-                  <p className="text-sm font-medium text-white">{lead.name}</p>
-                  {lead.company && (
-                    <p className="text-xs text-dark-400">{lead.company}</p>
-                  )}
-                </div>
-                <LeadScoreBadge score={lead.score} />
+        <ul className="divide-y divide-dark-200/50">
+          {topLeads.map((lead) => (
+            <li key={lead.id} className="py-2 flex justify-between items-center">
+              <div>
+                <div className="text-white font-medium">{lead.name}</div>
+                <div className="text-sm text-dark-300">{lead.company}</div>
               </div>
-            ))}
-          </div>
+              <div className="text-sm font-semibold text-blue-300">{lead.score}</div>
+            </li>
+          ))}
+        </ul>
+      </Card>
+
+      {/* Top Deals */}
+      <Card className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
+            <TrendingUp className="w-5 h-5 text-green-400" />
+            <span>Top Deals</span>
+          </h3>
+          <button
+            onClick={onViewAllDeals}
+            className="text-sm text-green-400 hover:underline"
+          >
+            View All
+          </button>
         </div>
-
-        {/* Top Deals */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-white flex items-center space-x-2">
-              <Target className="w-4 h-4 text-green-400 mr-2" />
-              <span>Top Deals</span>
-            </h4>
-            <button 
-              onClick={onViewAllDeals}
-              className="text-xs text-accent hover:text-accent/80 transition-colors flex items-center"
-            >
-              View All
-              <ArrowRight className="w-3 h-3 ml-1" />
-            </button>
-          </div>
-
-          <div className="space-y-2">
-            {topDeals.map(deal => (
-              <div 
-                key={deal.id}
-                className="flex items-center justify-between p-2 bg-dark-200/50 rounded-lg hover:bg-dark-200 transition-colors backdrop-blur-sm border border-dark-300/30"
-              >
-                <div>
-                  <p className="text-sm font-medium text-white">{deal.title}</p>
-                  <p className="text-xs text-dark-400">{formatCurrency(deal.value)}</p>
-                </div>
-                <DealScoreBadge score={deal.score} />
+        <ul className="divide-y divide-dark-200/50">
+          {topDeals.map((deal) => (
+            <li key={deal.id} className="py-2 flex justify-between items-center">
+              <div>
+                <div className="text-white font-medium">{deal.title}</div>
+                <div className="text-sm text-dark-300">${deal.value.toLocaleString()}</div>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </Card>
+              <div className="text-sm font-semibold text-green-300">{deal.score}</div>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </div>
   );
 };
