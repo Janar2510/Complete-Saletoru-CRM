@@ -497,9 +497,7 @@ const Dashboard: React.FC = () => {
   onScheduleMeeting={handleScheduleMeeting}
   onSendEmail={handleSendEmail}
   onCreateTask={handleCreateTask}
-/>
-
-      />
+ />
 
       {/* AI Task Suggestions Panels */}
       {showTaskSuggestions && (
