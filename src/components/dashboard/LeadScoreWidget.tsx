@@ -18,13 +18,18 @@ interface QuickActionsToolbarProps {
   onCreateTask: () => void;
 }
 
-export const QuickActionsToolbar: React.FC<QuickActionsToolbarProps> = ({
-  onCreateDeal,
-  onAddContact,
-  onScheduleMeeting,
-  onSendEmail,
-  onCreateTask,
-}) => {
+// ✅ Correct format
+export const LeadScoreWidget = () => {
+  return (
+    <div className="p-4 rounded-lg bg-dark-200 text-white">
+      <h3 className="text-lg font-semibold mb-2">Lead Score</h3>
+      <p className="text-sm text-dark-100">
+        This will display AI-enhanced lead scores based on engagement, match, and activity.
+      </p>
+    </div>
+  );
+};
+
   const actions: QuickAction[] = [
     {
       id: 'create-deal',
