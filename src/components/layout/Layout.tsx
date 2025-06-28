@@ -18,34 +18,33 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const { isDevMode, fakeUser } = useDevMode();
   
-  // Don't show the sidebar and header on the pricing page or onboarding
-  const isPublicPage = location.pathname === '/pricing';
+  // Don't show the sidebar and header on the onboarding
   const isOnboardingPage = location.pathname === '/onboarding';
 
   // If still loading auth state, show loading spinner
   if (loading && !isDevMode) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   // If not authenticated and not in dev mode, redirect to login
-  if (!user && !isDevMode && !isPublicPage) {
+  if (!user && !isDevMode && !isOnboardingPage) {
     return <Navigate to="/login" />;
   }
 
   // If in dev mode, use fake user
   const effectiveUser = isDevMode ? fakeUser : user;
 
-  if (isPublicPage || isOnboardingPage) {
-    return <main className="min-h-screen bg-background">{children}</main>;
+  if (isOnboardingPage) {
+    return <main className="min-h-screen">{children}</main>;
   }
 
   return (
     <OnboardingCheck>
-      <div className="h-screen flex bg-background overflow-hidden">
+      <div className="h-screen flex overflow-hidden">
         <Sidebar 
           isCollapsed={sidebarCollapsed} 
           onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 

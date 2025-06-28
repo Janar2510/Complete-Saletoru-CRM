@@ -12,7 +12,6 @@ import Offers from './pages/Offers';
 import EmailTemplates from './pages/EmailTemplates';
 import Settings from './pages/Settings';
 import Marketplace from './pages/Marketplace';
-import Pricing from './pages/Pricing';
 import LeadScoring from './pages/LeadScoring';
 import Leads from './pages/Leads';
 import Onboarding from './pages/Onboarding';
@@ -46,9 +45,6 @@ function App() {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/onboarding" element={<Onboarding />} />
-              
-              {/* Public Routes */}
-              <Route path="/pricing" element={<Pricing />} />
               
               {/* Protected Routes */}
               <Route path="/" element={<Layout><Dashboard /></Layout>} />

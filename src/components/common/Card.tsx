@@ -9,11 +9,10 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ children, className = '', hover = false }) => {
   return (
     <div
-      className={`bg-card/80 backdrop-blur-sm border border-dark-200 rounded-xl shadow-glass ${
+      className={`glass-card glass-effect rounded-xl ${
         hover ? 'hover:shadow-xl hover:border-dark-300 transition-all duration-300' : ''
       } ${className}`}
       style={{
-        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
         position: 'relative',
         overflow: 'hidden'
       }}

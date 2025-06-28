@@ -52,7 +52,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   };
 
   return (
-    <header className="bg-surface/80 backdrop-blur-sm border-b border-dark-200 px-6 py-4">
+    <header className="glass-card backdrop-blur-sm border-b border-dark-200 px-6 py-4">
       <div className="flex items-center justify-between">
         {/* Left side */}
         <div className="flex items-center space-x-4">
@@ -68,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             <input
               type="text"
               placeholder={`${t('common.search')}...`}
-              className="pl-10 pr-4 py-2 bg-dark-200 border border-dark-300 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent w-80"
+              className="pl-10 pr-4 py-2 bg-dark-200/70 border border-dark-300 rounded-lg text-white placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent w-80"
             />
             <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-dark-400 bg-dark-300 px-1.5 py-0.5 rounded">
               ⌘K
@@ -98,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
           
           <button 
             onClick={toggleLanguage}
-            className="flex items-center space-x-2 text-sm text-dark-400 p-2 rounded-lg hover:bg-dark-200 transition-colors"
+            className="flex items-center space-x-2 text-sm text-dark-400 p-2 rounded-lg hover:bg-dark-200/70 transition-colors"
           >
             <Globe className="w-4 h-4" />
             <span className="bg-accent text-white px-2 py-1 rounded text-xs font-medium">
@@ -106,11 +106,11 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             </span>
           </button>
           
-          <button className="p-2 rounded-lg hover:bg-dark-200 transition-colors">
+          <button className="p-2 rounded-lg hover:bg-dark-200/70 transition-colors">
             <Calendar className="w-5 h-5 text-dark-400" />
           </button>
           
-          <button className="p-2 rounded-lg hover:bg-dark-200 transition-colors">
+          <button className="p-2 rounded-lg hover:bg-dark-200/70 transition-colors">
             <HelpCircle className="w-5 h-5 text-dark-400" />
           </button>
           
@@ -132,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
             </button>
             
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-64 bg-surface border border-dark-200 rounded-lg shadow-lg z-50">
+              <div className="absolute right-0 mt-2 w-64 glass-card border border-dark-200 rounded-lg shadow-lg z-50">
                 <div className="p-3 border-b border-dark-200">
                   <p className="font-medium text-white">{userName}</p>
                   <p className="text-xs text-dark-400">{user?.email}</p>
@@ -141,7 +141,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                 <div className="py-1">
                   <Link 
                     to="/settings" 
-                    className="block px-4 py-2 text-white hover:bg-dark-200 transition-colors flex items-center"
+                    className="block px-4 py-2 text-white hover:bg-dark-200/70 transition-colors flex items-center"
                     onClick={() => setShowUserMenu(false)}
                   >
                     <Settings className="w-4 h-4 mr-2 text-dark-400" />
@@ -152,14 +152,14 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
                       toggleDevMode();
                       setShowUserMenu(false);
                     }}
-                    className="block w-full text-left px-4 py-2 text-white hover:bg-dark-200 transition-colors flex items-center"
+                    className="block w-full text-left px-4 py-2 text-white hover:bg-dark-200/70 transition-colors flex items-center"
                   >
                     <Code className="w-4 h-4 mr-2 text-purple-400" />
                     {isDevMode ? 'Disable' : 'Enable'} {t('common.devMode')}
                   </button>
                   <button
                     onClick={handleSignOut}
-                    className="block w-full text-left px-4 py-2 text-white hover:bg-dark-200 transition-colors flex items-center"
+                    className="block w-full text-left px-4 py-2 text-white hover:bg-dark-200/70 transition-colors flex items-center"
                   >
                     <LogOut className="w-4 h-4 mr-2 text-red-400" />
                     {t('common.signOut')}

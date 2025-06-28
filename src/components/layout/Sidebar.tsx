@@ -62,11 +62,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
   }
 
   return (
-    <div className={`bg-surface border-r border-dark-200 transition-all duration-300 ${
+    <div className={`glass-card border-r border-dark-200/50 transition-all duration-300 ${
       isCollapsed ? 'w-16' : 'w-64'
     } flex flex-col h-full`}>
       {/* Header */}
-      <div className="p-4 border-b border-dark-200">
+      <div className="p-4 border-b border-dark-200/50">
         <div className="flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center space-x-2">
@@ -81,7 +81,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
           )}
           <button
             onClick={onToggle}
-            className="p-1.5 rounded-lg hover:bg-dark-200 transition-colors"
+            className="p-1.5 rounded-lg hover:bg-dark-200/70 transition-colors"
           >
             <ChevronLeft className={`w-4 h-4 text-dark-400 transition-transform ${
               isCollapsed ? 'rotate-180' : ''
@@ -101,7 +101,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
                   `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group ${
                     isActive
                       ? 'bg-gradient-to-r from-purple-500/20 to-accent/20 text-white border border-purple-500/30'
-                      : 'text-dark-400 hover:text-white hover:bg-dark-200'
+                      : 'text-dark-400 hover:text-white hover:bg-dark-200/70'
                   }`
                 }
               >
@@ -123,7 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onToggle }) => {
       </nav>
 
       {/* User Profile */}
-      <div className="p-4 border-t border-dark-200">
+      <div className="p-4 border-t border-dark-200/50">
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
           <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-accent rounded-full flex items-center justify-center">
             <span className="text-sm font-medium text-white">{userInitials}</span>
