@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { Plus, Users, Calendar, Mail, FileText, Target } from 'lucide-react';
 import { Card } from '../common/Card';
 
@@ -17,8 +17,6 @@ interface QuickActionsToolbarProps {
   onSendEmail: () => void;
   onCreateTask: () => void;
 }
-
-import React from "react";
 
 export const LeadScoreWidget = () => {
   return (
