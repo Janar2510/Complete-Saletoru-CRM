@@ -491,12 +491,14 @@ const Dashboard: React.FC = () => {
       )}
 
       {/* Quick Actions */}
-      <QuickActionsToolbar
-        onCreateDeal={handleCreateDeal}
-        onAddContact={handleAddContact}
-        onScheduleMeeting={handleScheduleMeeting}
-        onSendEmail={handleSendEmail}
-        onCreateTask={handleCreateTask}
+    <QuickActionsToolbar
+  onCreateDeal={handleCreateDeal}
+  onAddContact={handleAddContact}
+  onScheduleMeeting={handleScheduleMeeting}
+  onSendEmail={handleSendEmail}
+  onCreateTask={handleCreateTask}
+/>
+
       />
 
       {/* AI Task Suggestions Panels */}
