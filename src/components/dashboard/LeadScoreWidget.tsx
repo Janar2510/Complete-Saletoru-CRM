@@ -18,17 +18,21 @@ interface QuickActionsToolbarProps {
   onCreateTask: () => void;
 }
 
-// ✅ Correct format
+import React from "react";
+
 export const LeadScoreWidget = () => {
   return (
-    <div className="p-4 rounded-lg bg-dark-200 text-white">
-      <h3 className="text-lg font-semibold mb-2">Lead Score</h3>
-      <p className="text-sm text-dark-100">
-        This will display AI-enhanced lead scores based on engagement, match, and activity.
-      </p>
+    <div className="p-4 rounded-lg bg-dark-200 text-white shadow-md">
+      <h3 className="text-lg font-semibold mb-2">Lead Score Insights</h3>
+      <div className="space-y-2 text-sm text-dark-100">
+        <p>🔥 Your top leads are scoring high this week.</p>
+        <p>📊 Lead scores are AI-enhanced and updated in real time.</p>
+        <p>🔁 Review activity, engagement, and match rate for accuracy.</p>
+      </div>
     </div>
   );
 };
+
 
   const actions: QuickAction[] = [
     {
