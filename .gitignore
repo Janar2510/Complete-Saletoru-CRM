@@ -1,25 +1,50 @@
-# Logs
-logs
+# --- ENV and secrets ---
+.env
+.env.local
+.env.*.local
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# --- Node ---
+node_modules/
+.package-lock.json
 
-# Editor directories and files
+# --- Vite / React / Build ---
+dist/
+build/
+.out/
+.cache/
+*.tsbuildinfo
+
+# --- Supabase (local dev files) ---
+.supabase/
+
+# --- Editor configs ---
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.env
+
+# --- Testing / Coverage ---
+coverage/
+*.snap
+
+# --- Misc / Temp ---
+*.tgz
+*.local
+*.bak
+*.tmp
