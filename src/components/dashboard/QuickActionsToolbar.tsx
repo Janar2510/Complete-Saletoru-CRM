@@ -1,14 +1,6 @@
 import React from 'react';
-import { Plus, Users, Calendar, Mail, FileText, Target } from 'lucide-react';
-import { Card } from '../common/Card';
-
-interface QuickAction {
-  id: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  color: string;
-  onClick: () => void;
-}
+import { Card } from '@/components/common/Card';
+import { Plus, Mail, Users, CalendarDays, ClipboardList } from 'lucide-react';
 
 interface QuickActionsToolbarProps {
   onCreateDeal: () => void;
@@ -25,65 +17,47 @@ export const QuickActionsToolbar: React.FC<QuickActionsToolbarProps> = ({
   onSendEmail,
   onCreateTask,
 }) => {
-  const actions: QuickAction[] = [
-    {
-      id: 'create-deal',
-      label: 'Add Deal',
-      icon: Target,
-      color: 'from-accent to-purple-500',
-      onClick: onCreateDeal,
-    },
-    {
-      id: 'add-contact',
-      label: 'Add Contact',
-      icon: Users,
-      color: 'from-green-500 to-green-600',
-      onClick: onAddContact,
-    },
-    {
-      id: 'schedule-meeting',
-      label: 'Schedule Meeting',
-      icon: Calendar,
-      color: 'from-blue-500 to-blue-600',
-      onClick: onScheduleMeeting,
-    },
-    {
-      id: 'send-email',
-      label: 'Send Email',
-      icon: Mail,
-      color: 'from-purple-500 to-purple-600',
-      onClick: onSendEmail,
-    },
-    {
-      id: 'create-task',
-      label: 'New Task',
-      icon: Plus,
-      color: 'from-orange-500 to-orange-600',
-      onClick: onCreateTask,
-    },
-  ];
-
   return (
-    <Card className="p-4 border border-dark-200/50">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold text-white">Quick Actions</h3>
-      </div>
-      
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {actions.map(action => (
-          <button
-            key={action.id}
-            onClick={action.onClick}
-            className={`bg-gradient-to-br ${action.color} text-white p-3 rounded-lg transition-all duration-200 hover:shadow-lg hover:scale-105 flex flex-col items-center space-y-2 group`}
-            style={{
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            <action.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            <span className="text-sm font-medium">{action.label}</span>
-          </button>
-        ))}
-      </div>
+    <Card className="flex flex-wrap justify-between items-center p-4 gap-4 bg-dark-100 border border-dark-300 text-white">
+      <button
+        onClick={onCreateDeal}
+        className="flex items-center space-x-2 px-4 py-2 rounded-md bg-gradient-to-r from-accent to-purple-500 hover:opacity-90 transition"
+      >
+        <Plus className="w-4 h-4" />
+        <span>Create Deal</span>
+      </button>
+
+      <button
+        onClick={onAddContact}
+        className="flex items-center space-x-2 px-4 py-2 rounded-md bg-gradient-to-r from-blue-500 to-indigo-500 hover:opacity-90 transition"
+      >
+        <Users className="w-4 h-4" />
+        <span>Add Contact</span>
+      </button>
+
+      <button
+        onClick={onScheduleMeeting}
+        className="flex items-center space-x-2 px-4 py-2 rounded-md bg-gradient-to-r from-green-500 to-emerald-500 hover:opacity-90 transition"
+      >
+        <CalendarDays className="w-4 h-4" />
+        <span>Schedule Meeting</span>
+      </button>
+
+      <button
+        onClick={onSendEmail}
+        className="flex items-center space-x-2 px-4 py-2 rounded-md bg-gradient-to-r from-yellow-500 to-orange-500 hover:opacity-90 transition"
+      >
+        <Mail className="w-4 h-4" />
+        <span>Send Email</span>
+      </button>
+
+      <button
+        onClick={onCreateTask}
+        className="flex items-center space-x-2 px-4 py-2 rounded-md bg-gradient-to-r from-purple-600 to-pink-500 hover:opacity-90 transition"
+      >
+        <ClipboardList className="w-4 h-4" />
+        <span>Create Task</span>
+      </button>
     </Card>
   );
 };
