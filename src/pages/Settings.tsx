@@ -1,109 +1,43 @@
-// ✅ Full Fixed Settings.tsx – With All UI, Tabs, Load/Save Functions Restored
-
 import React, { useState, useEffect } from 'react';
-import {
-  Settings as SettingsIcon,
-  Users,
-  GitBranch,
-  Zap,
-  Shield,
-  CreditCard,
-  Search,
-  ChevronRight,
-  User,
-  Bell,
-  Palette,
-  Database,
-  Lock,
-  Globe,
-  Moon,
-  Sun,
-  Languages,
-  Clock,
-  Mail,
-  Smartphone,
-  Volume2,
-  VolumeX,
-  Save,
-  Check,
-  AlertCircle
-} from 'lucide-react';
-import { Card } from '../components/common/Card';
 import { useAuth } from '../contexts/AuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { NotificationPreferencesPanel } from '../components/notifications/NotificationPreferencesPanel';
-import { supabase } from '../lib/supabase';
-import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
+import { supabase } from '../lib/supabaseClient';
+import { User, Bell, Shield } from 'lucide-react';
 
-const Settings: React.FC = () => {
-  const { user, updateUserRole } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<string>(() => {
-    const params = new URLSearchParams(location.search);
-    return params.get('tab') || 'account';
-  });
-  const { t, i18n } = useTranslation();
-
-  const [userSettings, setUserSettings] = useState({
-    theme: 'dark',
-    language: i18n.language,
-    timezone: 'UTC',
-    notification_preferences: {
-      email_notifications: true,
-      push_notifications: true,
-      sound_enabled: true
-    }
-  });
-
+export default function Settings() {
+  const { user } = useAuth();
+  const [selectedTab, setSelectedTab] = useState('account');
+  const [userSettings, setUserSettings] = useState<any>({});
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const isAdmin = user?.user_metadata?.role === 'admin' || user?.user_metadata?.role === 'developer_admin';
 
   useEffect(() => {
-    navigate(`/settings?tab=${activeTab}`, { replace: true });
-    if (activeTab === 'account') loadUserSettings();
-  }, [activeTab]);
+    const loadUserSettings = async () => {
+      if (!user || !user.id) return;
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('user_settings')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        if (error) throw error;
+        setUserSettings(data || {});
+      } catch (err) {
+        console.error('Failed to load user settings:', err);
+        setError('Could not load settings.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const loadUserSettings = async () => {
-    if (!user || !user.id || user.id === 'dev-mode-user') return;
+    loadUserSettings();
+  }, [user]);
+
+  const handleSave = async () => {
+    if (!user || !user.id) return;
     try {
       setLoading(true);
-      setError(null);
-      const { data, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      if (error) throw error;
-      if (data) {
-        setUserSettings({
-          ...data,
-          language: data.language || i18n.language,
-        });
-      }
-    } catch (err) {
-      console.error('Error loading user settings:', err);
-      setError('Failed to load settings. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const saveUserSettings = async () => {
-    if (!user || !user.id || user.id === 'dev-mode-user') return;
-    try {
-      setLoading(true);
-      setError(null);
-      setSuccess(false);
-      if (userSettings.language !== i18n.language) {
-        i18n.changeLanguage(userSettings.language);
-        localStorage.setItem('lang', userSettings.language);
-      }
       const { error } = await supabase
         .from('user_settings')
         .upsert({ user_id: user.id, ...userSettings });
@@ -111,106 +45,93 @@ const Settings: React.FC = () => {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      console.error('Error saving user settings:', err);
-      setError('Failed to save settings. Please try again.');
+      console.error('Failed to save settings:', err);
+      setError('Could not save settings.');
     } finally {
       setLoading(false);
     }
   };
 
-  const settingsCategories = [
-    {
-      id: 'account',
-      title: t('settings.accountSettings'),
-      description: t('settings.profileInformation'),
-      icon: User,
-      color: 'from-blue-500/20 to-blue-600/20',
-      iconColor: 'text-blue-400',
-      items: [
-        { name: t('settings.profileInformation'), description: 'Update your name, email, and avatar' },
-        { name: t('settings.passwordSecurity'), description: 'Change password and security settings' },
-        { name: t('settings.preferences'), description: 'Set your timezone, language, and display options' },
-      ]
-    },
-    {
-      id: 'notifications',
-      title: t('common.notifications'),
-      description: 'Manage your notification preferences',
-      icon: Bell,
-      color: 'from-purple-500/20 to-purple-600/20',
-      iconColor: 'text-purple-400',
-      items: [
-        { name: 'Notification Settings', description: 'Configure how and when you receive notifications' },
-        { name: 'Email Notifications', description: 'Manage email notification preferences' },
-        { name: 'Push Notifications', description: 'Configure mobile push notifications' },
-        { name: 'Alert Sounds', description: 'Customize notification sounds' },
-      ]
-    },
-    {
-      id: 'permissions',
-      title: 'Security & Permissions',
-      description: 'Configure access control and security settings',
-      icon: Shield,
-      color: 'from-red-500/20 to-red-600/20',
-      iconColor: 'text-red-400',
-      adminOnly: false,
-      items: [
-        { name: 'Permission Matrix', description: 'Configure granular permissions' },
-        { name: 'Role Management', description: 'Create and manage user roles' },
-        { name: 'Security Policies', description: 'Set password and access policies' },
-        { name: 'API Access', description: 'Manage API keys and integrations' },
-      ]
-    }
-  ];
-
-  const filteredCategories = settingsCategories.filter(cat => !cat.adminOnly || isAdmin);
-
   const renderTabContent = () => {
-    switch (activeTab) {
+    switch (selectedTab) {
       case 'account':
-        return <div className="text-white">Account Settings UI here</div>;
+        return <div>Account Settings UI here</div>;
       case 'notifications':
-        return <NotificationPreferencesPanel className="text-white" />;
+        return <div>Notification Preferences UI here</div>;
+      case 'security':
+        return <div>Security & Permissions UI here</div>;
       default:
-        return <div className="text-white">Please select a tab</div>;
+        return <div>Please select a tab</div>;
     }
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl text-white font-bold">{t('common.settings')}</h1>
-      </div>
+    <div className="p-6 text-white">
+      <h1 className="text-3xl font-bold mb-4">Settings</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Sidebar */}
-        <div className="col-span-1">
-          <Card className="p-4 space-y-2">
-            {filteredCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveTab(cat.id)}
-                className={`w-full text-left p-3 rounded-lg ${activeTab === cat.id ? 'bg-accent text-white' : 'bg-dark-200 text-white hover:bg-dark-100'}`}
-              >
-                <div className="flex items-center space-x-3">
-                  <cat.icon className={`w-5 h-5 ${cat.iconColor}`} />
-                  <div>
-                    <div className="font-semibold">{cat.title}</div>
-                    <div className="text-xs text-dark-400">{cat.description}</div>
-                  </div>
-                </div>
-              </button>
-            ))}
-          </Card>
+      <div className="flex space-x-6">
+        {/* Sidebar Tabs */}
+        <div className="flex flex-col w-64 bg-[#1e1f30] rounded-2xl shadow-lg p-4 space-y-4">
+          <button
+            onClick={() => setSelectedTab('account')}
+            className={`p-3 text-left rounded-xl border ${
+              selectedTab === 'account'
+                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                : 'bg-[#2a2b3d] text-gray-300'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <User size={18} />
+              <div>
+                <div className="font-semibold">Account Settings</div>
+                <div className="text-sm text-gray-400">Profile Information</div>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setSelectedTab('notifications')}
+            className={`p-3 text-left rounded-xl border ${
+              selectedTab === 'notifications'
+                ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
+                : 'bg-[#2a2b3d] text-gray-300'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <Bell size={18} />
+              <div>
+                <div className="font-semibold">Notifications</div>
+                <div className="text-sm text-gray-400">Manage your notification preferences</div>
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setSelectedTab('security')}
+            className={`p-3 text-left rounded-xl border ${
+              selectedTab === 'security'
+                ? 'bg-gradient-to-r from-red-500 to-red-600 text-white'
+                : 'bg-[#2a2b3d] text-gray-300'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <Shield size={18} />
+              <div>
+                <div className="font-semibold">Security & Permissions</div>
+                <div className="text-sm text-gray-400">Access control & password settings</div>
+              </div>
+            </div>
+          </button>
         </div>
 
         {/* Main Content */}
-        <div className="col-span-3">
+        <div className="flex-1 p-4 rounded-xl bg-[#1a1b2e] shadow-lg">
+          {loading && <div className="text-gray-400">Loading...</div>}
+          {error && <div className="text-red-500">{error}</div>}
+          {success && <div className="text-green-500">Settings saved!</div>}
           {renderTabContent()}
         </div>
       </div>
     </div>
   );
-};
-
-export default Settings;
+}
