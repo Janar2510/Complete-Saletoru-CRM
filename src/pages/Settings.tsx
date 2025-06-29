@@ -40,13 +40,11 @@ const Settings: React.FC = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState<string>(() => {
-    // Check if tab is specified in URL
     const params = new URLSearchParams(location.search);
     return params.get('tab') || 'account';
   });
   const { t, i18n } = useTranslation();
-  
-  // User settings state
+
   const [userSettings, setUserSettings] = useState({
     theme: 'dark',
     language: i18n.language,
@@ -57,40 +55,31 @@ const Settings: React.FC = () => {
       sound_enabled: true
     }
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Update URL when tab changes
     navigate(`/settings?tab=${activeTab}`, { replace: true });
-    
-    // Load settings for the active tab
-    if (activeTab === 'account') {
-      loadUserSettings();
-    }
+    if (activeTab === 'account') loadUserSettings();
   }, [activeTab]);
 
   const loadUserSettings = async () => {
-    if (!user) return;
-    
+    if (!user || !user.id || user.id === 'dev-mode-user') return; // Fix for local dev user
     try {
       setLoading(true);
       setError(null);
-      
       const { data, error } = await supabase
         .from('user_settings')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
-      
       if (error) throw error;
-      
       if (data) {
         setUserSettings({
           ...data,
-          language: i18n.language // Ensure language is synced with i18n
+          language: i18n.language
         });
       }
     } catch (err) {
@@ -102,29 +91,19 @@ const Settings: React.FC = () => {
   };
 
   const saveUserSettings = async () => {
-    if (!user) return;
-    
+    if (!user || !user.id || user.id === 'dev-mode-user') return; // Fix for local dev user
     try {
       setLoading(true);
       setError(null);
       setSuccess(false);
-      
-      // Update language if changed
       if (userSettings.language !== i18n.language) {
         i18n.changeLanguage(userSettings.language);
         localStorage.setItem('lang', userSettings.language);
       }
-      
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('user_settings')
-        .upsert({
-          user_id: user.id,
-          ...userSettings
-        })
-        .select();
-      
+        .upsert({ user_id: user.id, ...userSettings });
       if (error) throw error;
-      
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
@@ -134,11 +113,7 @@ const Settings: React.FC = () => {
       setLoading(false);
     }
   };
-
-  const isAdmin = user?.user_metadata?.role === 'admin' || user?.user_metadata?.role === 'developer_admin';
-
-  const settingsCategories = [
-    {
+  
       id: 'account',
       title: t('settings.accountSettings'),
       description: t('settings.profileInformation'),
