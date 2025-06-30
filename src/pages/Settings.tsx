@@ -6,7 +6,7 @@ import { loadUserSettings, saveUserSettings } from '../lib/userSettings';
 import { useDevMode } from '../contexts/DevModeContext';
 
 export default function Settings() {
-  const { isDevMode } = useDevMode();
+ const { isDevMode, fakeUser } = useDevMode();
   const [selectedTab, setSelectedTab] = useState('account');
   const [userSettings, setUserSettings] = useState<any>({});
   const [loading, setLoading] = useState(false);
