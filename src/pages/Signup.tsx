@@ -2,39 +2,40 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { Mail, Lock, User } from 'lucide-react';
 
 export default function Signup() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [vatNumber, setVatNumber] = useState('');
-  const [address, setAddress] = useState('');
-
+  const [companyAddress, setCompanyAddress] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
 
+    setLoading(true);
     const trialStart = new Date();
     const trialEnd = new Date();
     trialEnd.setDate(trialStart.getDate() + 14);
 
-    // Step 1: Create user
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          first_name: firstName,
-          last_name: lastName,
+          full_name: fullName,
           role: 'admin',
           is_owner: true,
           trial_start_date: trialStart.toISOString(),
@@ -53,13 +54,12 @@ export default function Signup() {
 
     const userId = authData.user.id;
 
-    // Step 2: Insert company
     const { data: companyData, error: companyError } = await supabase
       .from('companies')
       .insert({
         name: companyName,
         vat_number: vatNumber,
-        address,
+        address: companyAddress,
         owner_id: userId,
       })
       .select('id')
@@ -73,12 +73,10 @@ export default function Signup() {
 
     const companyId = companyData.id;
 
-    // Step 3: Link user profile
     const { error: profileError } = await supabase
       .from('user_profiles')
       .update({
-        first_name: firstName,
-        last_name: lastName,
+        full_name: fullName,
         role: 'admin',
         is_owner: true,
         company_id: companyId,
@@ -90,7 +88,7 @@ export default function Signup() {
       .eq('id', userId);
 
     if (profileError) {
-      setError(profileError.message || 'Failed to update user profile');
+      setError(profileError.message || 'Profile update failed');
       setLoading(false);
       return;
     }
@@ -99,90 +97,48 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f0f1c] to-[#101022] text-white">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0b0b12] text-white px-4">
+      <img src="/logo.svg" alt="SaleToru Logo" className="w-16 h-16 mb-4" />
+      <h1 className="text-3xl font-bold mb-1">SaleToru</h1>
+      <p className="text-gray-400 mb-8">Smart Sales Management</p>
+
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md bg-[#1a1a2e] p-8 rounded-lg shadow-md space-y-4"
+        className="w-full max-w-md bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-xl space-y-4"
       >
-        <h2 className="text-2xl font-bold text-center">Create Your Account</h2>
+        <h2 className="text-xl font-semibold mb-2">Create Account</h2>
 
-        <input
-          type="text"
-          placeholder="First Name"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          required
-          className="input"
-        />
+        <div className="relative">
+          <User className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+            className="pl-10 input"
+          />
+        </div>
 
-        <input
-          type="text"
-          placeholder="Last Name"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          required
-          className="input"
-        />
+        <div className="relative">
+          <Mail className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="pl-10 input"
+          />
+        </div>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="input"
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="input"
-        />
-
-        <hr className="border-gray-600" />
-
-        <input
-          type="text"
-          placeholder="Company Name"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          required
-          className="input"
-        />
-
-        <input
-          type="text"
-          placeholder="VAT Number"
-          value={vatNumber}
-          onChange={(e) => setVatNumber(e.target.value)}
-          className="input"
-        />
-
-        <input
-          type="text"
-          placeholder="Company Address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          className="input"
-        />
-
-        {error && <p className="text-red-400 text-sm">{error}</p>}
-
-        <button
-          type="submit"
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white font-semibold py-2 rounded-lg transition"
-          disabled={loading}
-        >
-          {loading ? 'Creating account...' : 'Sign Up'}
-        </button>
-
-        <p className="text-sm text-center text-gray-400">
-          Already have an account? <Link to="/login" className="text-blue-400">Login</Link>
-        </p>
-      </form>
-    </div>
-  );
-}
+        <div className="relative">
+          <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+          <input
+            type="password"
+            placeholder="Create a password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="pl-10 input"
+          />
