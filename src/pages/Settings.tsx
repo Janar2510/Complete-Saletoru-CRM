@@ -12,9 +12,10 @@ export default function Settings() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
+ useEffect(() => {
   const fetchSettings = async () => {
     if (!user || !user.id) return;
+    console.log("👤 Loading settings for user:", user.id); // ADD THIS LINE
     setLoading(true);
     const settings = await loadUserSettings(user.id);
     if (settings) {
@@ -27,6 +28,7 @@ export default function Settings() {
 
   fetchSettings();
 }, [user]);
+
 
   const renderTabContent = () => {
     switch (selectedTab) {
