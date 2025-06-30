@@ -1,55 +1,21 @@
-import { supabase } from './supabase.ts';
-
 export const loadUserSettings = async (userId: string) => {
   if (!userId || userId === 'dev-mode-user') {
-    console.warn('Dev mode or invalid user — skipping settings load.');
+    console.warn('🛠 Dev mode or invalid user — skipping settings load.');
     return null;
   }
 
-const { data, error } = await supabase
-  .from('user_settings')
-  .select('*')
-  .eq('user_id', userId)
-  .single(); 
+  const { data, error } = await supabase
+    .from('user_settings')
+    .select('*')
+    .eq('user_id', userId)
+    .single(); // ← make sure you're using `.single()` now
+
+  console.log("📦 Fetched settings:", { data, error });
 
   if (error) {
-    console.error('Failed to load user settings:', error);
+    console.error('❌ Supabase error:', error);
     return null;
-  }
-
-  if (!data) {
-    const defaultSettings = {
-      user_id: userId,
-      theme: 'light',
-      language: 'en',
-      timezone: 'UTC',
-    };
-
-    const { error: insertError } = await supabase
-      .from('user_settings')
-      .insert([defaultSettings]);
-
-    if (insertError) {
-     console.log("✅ Settings found:", data);
-
-      return null;
-    }
-
-    return defaultSettings;
   }
 
   return data;
-};
-
-export const saveUserSettings = async (userId: string, settings: any) => {
-  if (!userId || userId === 'dev-mode-user') return;
-
-  const { error } = await supabase
-    .from('user_settings')
-    .upsert({ user_id: userId, ...settings });
-
-  if (error) {
-    console.error('Failed to save user settings:', error);
-    throw error;
-  }
 };
