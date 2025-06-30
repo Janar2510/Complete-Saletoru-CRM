@@ -1,8 +1,8 @@
-import { loadUserSettings, saveUserSettings } from '../lib/userSettings';
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from "../lib/supabase";
 import { User, Bell, Shield } from 'lucide-react';
+import { loadUserSettings, saveUserSettings } from '../lib/userSettings';
 
 export default function Settings() {
   const { user } = useAuth();
