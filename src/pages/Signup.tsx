@@ -1,28 +1,29 @@
-// /src/pages/Signup.tsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import { Mail, Lock, User } from 'lucide-react';
+import { Card } from '../components/common/Card';
+import { supabase } from '../lib/supabase';
 
 export default function Signup() {
   const navigate = useNavigate();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [companyName, setCompanyName] = useState('');
-  const [vatNumber, setVatNumber] = useState('');
-  const [companyAddress, setCompanyAddress] = useState('');
+  const [formData, setFormData] = useState({
+    full_name: '',
+    email: '',
+    password: '',
+    confirm_password: '',
+  });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
+    if (formData.password !== formData.confirm_password) {
+      return setError('Passwords do not match');
     }
 
     setLoading(true);
@@ -30,12 +31,12 @@ export default function Signup() {
     const trialEnd = new Date();
     trialEnd.setDate(trialStart.getDate() + 14);
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
+    const { data, error } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
       options: {
         data: {
-          full_name: fullName,
+          full_name: formData.full_name,
           role: 'admin',
           is_owner: true,
           trial_start_date: trialStart.toISOString(),
@@ -46,49 +47,8 @@ export default function Signup() {
       },
     });
 
-    if (authError || !authData?.user) {
-      setError(authError?.message || 'Signup failed');
-      setLoading(false);
-      return;
-    }
-
-    const userId = authData.user.id;
-
-    const { data: companyData, error: companyError } = await supabase
-      .from('companies')
-      .insert({
-        name: companyName,
-        vat_number: vatNumber,
-        address: companyAddress,
-        owner_id: userId,
-      })
-      .select('id')
-      .single();
-
-    if (companyError || !companyData?.id) {
-      setError(companyError?.message || 'Company creation failed');
-      setLoading(false);
-      return;
-    }
-
-    const companyId = companyData.id;
-
-    const { error: profileError } = await supabase
-      .from('user_profiles')
-      .update({
-        full_name: fullName,
-        role: 'admin',
-        is_owner: true,
-        company_id: companyId,
-        trial_start_date: trialStart.toISOString(),
-        trial_end_date: trialEnd.toISOString(),
-        is_trial_active: true,
-        subscription_status: 'trial',
-      })
-      .eq('id', userId);
-
-    if (profileError) {
-      setError(profileError.message || 'Profile update failed');
+    if (error) {
+      setError(error.message);
       setLoading(false);
       return;
     }
@@ -97,104 +57,88 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0b0b12] text-white px-4">
-      <img src="/logo.svg" alt="SaleToru Logo" className="w-16 h-16 mb-4" />
-      <h1 className="text-3xl font-bold mb-1">SaleToru</h1>
-      <p className="text-gray-400 mb-8">Smart Sales Management</p>
-
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white/5 backdrop-blur-xl p-8 rounded-2xl border border-white/10 shadow-xl space-y-4"
-      >
-        <h2 className="text-xl font-semibold mb-2">Create Account</h2>
-
-        <div className="relative">
-          <User className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
-            className="pl-10 input"
-          />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 mx-auto mb-4">
+            <img src="https://i.imgur.com/Zylpdjy.png" alt="SaleToru Logo" className="w-full h-full" />
+          </div>
+          <h1 className="text-3xl font-bold text-white">SaleToru</h1>
+          <p className="text-dark-400">Smart Sales Management</p>
         </div>
 
-        <div className="relative">
-          <Mail className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="pl-10 input"
-          />
-        </div>
+        <Card className="p-8">
+          <h2 className="text-2xl font-bold text-white mb-6">Create Account</h2>
 
-        <div className="relative">
-          <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-          <input
-            type="password"
-            placeholder="Create a password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="pl-10 input"
-          />
-        </div>
+          {error && (
+            <div className="bg-red-500/20 border border-red-500/30 text-red-400 p-4 rounded-lg mb-6">
+              {error}
+            </div>
+          )}
 
-        <div className="relative">
-          <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-          <input
-            type="password"
-            placeholder="Confirm your password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            className="pl-10 input"
-          />
-        </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-400" />
+              <input
+                name="full_name"
+                placeholder="Enter your full name"
+                onChange={handleChange}
+                className="w-full pl-10 pr-3 py-2 bg-dark-200 border border-dark-300 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
 
-        <hr className="border-white/10 my-4" />
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-400" />
+              <input
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                onChange={handleChange}
+                className="w-full pl-10 pr-3 py-2 bg-dark-200 border border-dark-300 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
 
-        <input
-          type="text"
-          placeholder="Company Name"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          required
-          className="input"
-        />
-        <input
-          type="text"
-          placeholder="Company Address"
-          value={companyAddress}
-          onChange={(e) => setCompanyAddress(e.target.value)}
-          className="input"
-        />
-        <input
-          type="text"
-          placeholder="VAT Number"
-          value={vatNumber}
-          onChange={(e) => setVatNumber(e.target.value)}
-          className="input"
-        />
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-400" />
+              <input
+                name="password"
+                type="password"
+                placeholder="Create a password"
+                onChange={handleChange}
+                className="w-full pl-10 pr-3 py-2 bg-dark-200 border border-dark-300 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
 
-        {error && <p className="text-sm text-red-400">{error}</p>}
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-400" />
+              <input
+                name="confirm_password"
+                type="password"
+                placeholder="Confirm your password"
+                onChange={handleChange}
+                className="w-full pl-10 pr-3 py-2 bg-dark-200 border border-dark-300 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
 
-        <button
-          type="submit"
-          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white font-semibold py-2 rounded-lg transition"
-          disabled={loading}
-        >
-          {loading ? 'Creating...' : 'Create Account'}
-        </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-accent hover:bg-accent/80 disabled:opacity-70 text-white py-2 rounded-lg transition-colors"
+            >
+              {loading ? 'Creating...' : 'Create Account'}
+            </button>
+          </form>
 
-        <p className="text-sm text-center text-gray-400">
-          Already have an account? <Link to="/login" className="text-indigo-400">Sign In</Link>
-        </p>
-      </form>
+          <div className="mt-6 text-center">
+            <p className="text-dark-400">
+              Already have an account?{' '}
+              <Link to="/login" className="text-accent hover:text-accent/80">
+                Sign In
+              </Link>
+            </p>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
