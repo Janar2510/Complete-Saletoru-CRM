@@ -1,11 +1,11 @@
-
+import { useDevMode } from '../contexts/DevModeContext';
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Bell, Shield } from 'lucide-react';
 import { loadUserSettings, saveUserSettings } from '../lib/userSettings';
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { isDevMode } = useDevMode();
   const [selectedTab, setSelectedTab] = useState('account');
   const [userSettings, setUserSettings] = useState<any>({});
   const [loading, setLoading] = useState(false);
