@@ -1,8 +1,9 @@
-import { useDevMode } from '../contexts/DevModeContext';
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Bell, Shield } from 'lucide-react';
 import { loadUserSettings, saveUserSettings } from '../lib/userSettings';
+import { useDevMode } from '../contexts/DevModeContext';
 
 export default function Settings() {
   const { isDevMode } = useDevMode();
