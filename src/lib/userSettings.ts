@@ -30,7 +30,8 @@ const { data, error } = await supabase
       .insert([defaultSettings]);
 
     if (insertError) {
-      console.error('Failed to insert default settings:', insertError);
+     console.log("✅ Settings found:", data);
+
       return null;
     }
 
