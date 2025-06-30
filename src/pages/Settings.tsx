@@ -13,35 +13,22 @@ export default function Settings() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
- useEffect(() => {
-  const initAuth = async () => {
-    if (isDevMode) {
-      setUser(fakeUser as User);
-      setSession({ user: fakeUser } as Session);
-      setLoading(false);
-      return;
-    }
-
-    if (!isSupabaseConfigured || !supabase) {
-      setLoading(false);
-      return;
-    }
-
-    const { data, error } = await supabase.auth.getSession();
-    if (error) {
-      console.error('Failed to get session:', error);
-    }
-
-    if (data?.session) {
-      setSession(data.session);
-      setUser(data.session.user);
+useEffect(() => {
+  const fetchSettings = async () => {
+    if (!user || !user.id) return;
+    setLoading(true);
+    const settings = await loadUserSettings(user.id);
+    if (settings) {
+      setUserSettings(settings);
     } else {
-      setSession(null);
-      setUser(null);
+      setError('Could not load settings.');
     }
-
     setLoading(false);
   };
+
+  fetchSettings();
+}, [user]);
+
 
   initAuth();
 
