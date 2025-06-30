@@ -1,4 +1,3 @@
-// src/lib/userSettings.ts
 import { supabase } from './supabase.ts';
 
 export const loadUserSettings = async (userId: string) => {
@@ -39,4 +38,17 @@ export const loadUserSettings = async (userId: string) => {
   }
 
   return data;
+};
+
+export const saveUserSettings = async (userId: string, settings: any) => {
+  if (!userId || userId === 'dev-mode-user') return;
+
+  const { error } = await supabase
+    .from('user_settings')
+    .upsert({ user_id: userId, ...settings });
+
+  if (error) {
+    console.error('Failed to save user settings:', error);
+    throw error;
+  }
 };
