@@ -6,11 +6,11 @@ export const loadUserSettings = async (userId: string) => {
     return null;
   }
 
-  const { data, error } = await supabase
-    .from('user_settings')
-    .select('*')
-    .eq('user_id', userId)
-    .maybeSingle();
+const { data, error } = await supabase
+  .from('user_settings')
+  .select('*')
+  .eq('user_id', userId)
+  .single(); 
 
   if (error) {
     console.error('Failed to load user settings:', error);
