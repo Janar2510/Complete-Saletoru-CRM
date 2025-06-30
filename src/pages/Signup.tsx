@@ -142,3 +142,59 @@ export default function Signup() {
             required
             className="pl-10 input"
           />
+        </div>
+
+        <div className="relative">
+          <Lock className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+          <input
+            type="password"
+            placeholder="Confirm your password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            className="pl-10 input"
+          />
+        </div>
+
+        <hr className="border-white/10 my-4" />
+
+        <input
+          type="text"
+          placeholder="Company Name"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+          required
+          className="input"
+        />
+        <input
+          type="text"
+          placeholder="Company Address"
+          value={companyAddress}
+          onChange={(e) => setCompanyAddress(e.target.value)}
+          className="input"
+        />
+        <input
+          type="text"
+          placeholder="VAT Number"
+          value={vatNumber}
+          onChange={(e) => setVatNumber(e.target.value)}
+          className="input"
+        />
+
+        {error && <p className="text-sm text-red-400">{error}</p>}
+
+        <button
+          type="submit"
+          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white font-semibold py-2 rounded-lg transition"
+          disabled={loading}
+        >
+          {loading ? 'Creating...' : 'Create Account'}
+        </button>
+
+        <p className="text-sm text-center text-gray-400">
+          Already have an account? <Link to="/login" className="text-indigo-400">Sign In</Link>
+        </p>
+      </form>
+    </div>
+  );
+}
