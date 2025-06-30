@@ -31,11 +31,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isDevMode) {
-      // In dev mode, use fake user
-      setUser(fakeUser as User);
-      setSession({ user: fakeUser } as Session);
-      setLoading(false);
+  if (user && shouldBlockUser(user)) {
+    // log out + redirect or show error UI
+    signOut(); // or your logout method
+    navigate('/blocked'); // create this screen
+  }
+}, [user]);
       return;
     }
 
