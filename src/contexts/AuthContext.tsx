@@ -40,33 +40,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) {
-      setLoading(false);
-      return;
+useEffect(() => {
+  if (!isSupabaseConfigured || !supabase) {
+    setLoading(false);
+    return;
+  }
+
+  // Initial session check
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    setSession(session);
+    setUser(session?.user ?? null);
+
+    // Block check
+    if (session?.user && shouldBlockUser(session.user)) {
+      setIsBlocked(true);
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    setLoading(false);
+  });
+
+  // Auth state listener
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
-    });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-
-        if (session?.user && shouldBlockUser(session.user)) {
-          await signOut();
-          navigate('/blocked');
-        }
+      if (session?.user && shouldBlockUser(session.user)) {
+        setIsBlocked(true);
+      } else {
+        setIsBlocked(false);
       }
-    );
 
-    return () => subscription.unsubscribe();
-  }, [isDevMode, fakeUser]);
+      setLoading(false);
+    }
+  );
+
+  return () => subscription.unsubscribe();
+}, [isDevMode, fakeUser]);
+
 
   const signIn = async (email: string, password: string) => {
     if (isDevMode) {
