@@ -1,46 +1,53 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Bell, Shield } from 'lucide-react';
 import { loadUserSettings, saveUserSettings } from '../lib/userSettings';
 import { useDevMode } from '../contexts/DevModeContext';
+import { User, Bell, Shield } from 'lucide-react';
 
 export default function Settings() {
- const { isDevMode, fakeUser } = useDevMode();
+  const { user } = useAuth();
+  const { isDevMode, fakeUser } = useDevMode();
+
   const [selectedTab, setSelectedTab] = useState('account');
   const [userSettings, setUserSettings] = useState<any>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-useEffect(() => {
-  const fetchSettings = async () => {
-    if (!user || !user.id) return;
-    setLoading(true);
-    const settings = await loadUserSettings(user.id);
-    if (settings) {
-      setUserSettings(settings);
-    } else {
-      setError('Could not load settings.');
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const userId = user?.id || (isDevMode ? fakeUser?.id : null);
+      if (!userId) return;
+
+      setLoading(true);
+      const settings = await loadUserSettings(userId);
+      if (settings) {
+        setUserSettings(settings);
+      } else {
+        setError('Could not load settings.');
+      }
+      setLoading(false);
+    };
+
+    fetchSettings();
+  }, [user, isDevMode, fakeUser]);
+
+  const handleSave = async () => {
+    const userId = user?.id || (isDevMode ? fakeUser?.id : null);
+    if (!userId) return;
+
+    try {
+      setLoading(true);
+      await saveUserSettings(userId, userSettings);
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      console.error('Failed to save settings:', err);
+      setError('Could not save settings.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
-
-  fetchSettings();
-}, [user]);
-
-  initAuth();
-
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    (_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    }
-  );
-
-  return () => subscription.unsubscribe();
-}, [isDevMode, fakeUser]);
-
 
   const renderTabContent = () => {
     switch (selectedTab) {
@@ -51,75 +58,56 @@ useEffect(() => {
       case 'security':
         return <div>Security & Permissions UI here</div>;
       default:
-        return <div>Please select a tab</div>;
+        return <div>Invalid tab</div>;
     }
   };
 
   return (
     <div className="p-6 text-white">
-      <h1 className="text-3xl font-bold mb-4">Settings</h1>
-
+      <h1 className="text-3xl font-bold mb-6">Settings</h1>
       <div className="flex space-x-6">
-        {/* Sidebar Tabs */}
-        <div className="flex flex-col w-64 bg-[#1e1f30] rounded-2xl shadow-lg p-4 space-y-4">
+        <div className="flex flex-col space-y-2">
           <button
             onClick={() => setSelectedTab('account')}
-            className={`p-3 text-left rounded-xl border ${
-              selectedTab === 'account'
-                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                : 'bg-[#2a2b3d] text-gray-300'
+            className={`px-4 py-2 rounded-lg text-left ${
+              selectedTab === 'account' ? 'bg-blue-700' : 'bg-zinc-800'
             }`}
           >
-            <div className="flex items-center space-x-2">
-              <User size={18} />
-              <div>
-                <div className="font-semibold">Account Settings</div>
-                <div className="text-sm text-gray-400">Profile Information</div>
-              </div>
-            </div>
+            <User className="inline-block w-4 h-4 mr-2" />
+            Account Settings
           </button>
-
           <button
             onClick={() => setSelectedTab('notifications')}
-            className={`p-3 text-left rounded-xl border ${
-              selectedTab === 'notifications'
-                ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white'
-                : 'bg-[#2a2b3d] text-gray-300'
+            className={`px-4 py-2 rounded-lg text-left ${
+              selectedTab === 'notifications' ? 'bg-blue-700' : 'bg-zinc-800'
             }`}
           >
-            <div className="flex items-center space-x-2">
-              <Bell size={18} />
-              <div>
-                <div className="font-semibold">Notifications</div>
-                <div className="text-sm text-gray-400">Manage your notification preferences</div>
-              </div>
-            </div>
+            <Bell className="inline-block w-4 h-4 mr-2" />
+            Notifications
           </button>
-
           <button
             onClick={() => setSelectedTab('security')}
-            className={`p-3 text-left rounded-xl border ${
-              selectedTab === 'security'
-                ? 'bg-gradient-to-r from-red-500 to-red-600 text-white'
-                : 'bg-[#2a2b3d] text-gray-300'
+            className={`px-4 py-2 rounded-lg text-left ${
+              selectedTab === 'security' ? 'bg-blue-700' : 'bg-zinc-800'
             }`}
           >
-            <div className="flex items-center space-x-2">
-              <Shield size={18} />
-              <div>
-                <div className="font-semibold">Security & Permissions</div>
-                <div className="text-sm text-gray-400">Access control & password settings</div>
-              </div>
-            </div>
+            <Shield className="inline-block w-4 h-4 mr-2" />
+            Security & Permissions
           </button>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 p-4 rounded-xl bg-[#1a1b2e] shadow-lg">
-          {loading && <div className="text-gray-400">Loading...</div>}
-          {error && <div className="text-red-500">{error}</div>}
-          {success && <div className="text-green-500">Settings saved!</div>}
-          {renderTabContent()}
+        <div className="flex-1 p-4 bg-zinc-900 rounded-lg">
+          {error && <p className="text-red-400 mb-2">{error}</p>}
+          {success && <p className="text-green-400 mb-2">✅ Settings saved!</p>}
+          {loading ? <p>Loading settings...</p> : renderTabContent()}
+          {!loading && (
+            <button
+              onClick={handleSave}
+              className="mt-4 px-4 py-2 rounded bg-green-600 hover:bg-green-700"
+            >
+              Save Changes
+            </button>
+          )}
         </div>
       </div>
     </div>
