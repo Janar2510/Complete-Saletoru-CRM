@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { useDevMode } from './DevModeContext';
-import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -13,6 +12,7 @@ interface AuthContextType {
   loading: boolean;
   resetPassword: (email: string) => Promise<void>;
   updateUserRole: (role: string) => Promise<void>;
+  isBlocked: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,12 +25,14 @@ export const useAuth = () => {
   return context;
 };
 
+const isTrialExpired = (trialEndDate: string) => {
+  return new Date(trialEndDate) < new Date();
+};
+
 const shouldBlockUser = (user: any) => {
-  const now = new Date();
-  const trialEnd = new Date(user?.user_metadata?.trial_end_date);
-  const isTrialExpired = user?.user_metadata?.subscription_status === 'trial' && trialEnd < now;
-  const isOverdue = user?.user_metadata?.subscription_status === 'overdue';
-  return isTrialExpired || isOverdue;
+  const overdue = user.user_metadata?.subscription_status === 'overdue';
+  const expiredTrial = user.user_metadata?.subscription_status === 'trial' && isTrialExpired(user.user_metadata.trial_end_date);
+  return overdue || expiredTrial;
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -38,47 +40,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
   const [isBlocked, setIsBlocked] = useState(false);
 
-useEffect(() => {
-  if (!isSupabaseConfigured || !supabase) {
-    setLoading(false);
-    return;
-  }
-
-  // Initial session check
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    setSession(session);
-    setUser(session?.user ?? null);
-
-    // Block check
-    if (session?.user && shouldBlockUser(session.user)) {
-      setIsBlocked(true);
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) {
+      setLoading(false);
+      return;
     }
 
-    setLoading(false);
-  });
-
-  // Auth state listener
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    async (event, session) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
 
       if (session?.user && shouldBlockUser(session.user)) {
         setIsBlocked(true);
-      } else {
-        setIsBlocked(false);
       }
 
       setLoading(false);
-    }
-  );
+    });
 
-  return () => subscription.unsubscribe();
-}, [isDevMode, fakeUser]);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
 
+        if (session?.user && shouldBlockUser(session.user)) {
+          setIsBlocked(true);
+        } else {
+          setIsBlocked(false);
+        }
+
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [isDevMode, fakeUser]);
 
   const signIn = async (email: string, password: string) => {
     if (isDevMode) {
@@ -109,22 +106,13 @@ useEffect(() => {
       throw new Error('Supabase is not configured. Please check your environment variables.');
     }
 
-    const trialStart = new Date();
-    const trialEnd = new Date();
-    trialEnd.setDate(trialStart.getDate() + 14);
-
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           full_name: fullName,
-          role: 'admin',
-          is_owner: true,
-          trial_start_date: trialStart.toISOString(),
-          trial_end_date: trialEnd.toISOString(),
-          is_trial_active: true,
-          subscription_status: 'trial',
+          role: 'user',
         },
       },
     });
@@ -180,7 +168,6 @@ useEffect(() => {
       });
 
       if (error) throw error;
-
       if (data.user) {
         setUser(data.user);
       }
@@ -199,6 +186,7 @@ useEffect(() => {
     loading,
     resetPassword,
     updateUserRole,
+    isBlocked,
   };
 
   return (
