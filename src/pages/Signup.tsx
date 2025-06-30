@@ -1,11 +1,10 @@
+// /src/pages/Signup.tsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import supabase from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export default function Signup() {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,6 +27,7 @@ export default function Signup() {
     const trialEnd = new Date();
     trialEnd.setDate(trialStart.getDate() + 14);
 
+    // Step 1: Create user
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -53,12 +53,14 @@ export default function Signup() {
 
     const userId = authData.user.id;
 
+    // Step 2: Insert company
     const { data: companyData, error: companyError } = await supabase
       .from('companies')
       .insert({
         name: companyName,
         vat_number: vatNumber,
         address,
+        owner_id: userId,
       })
       .select('id')
       .single();
@@ -71,7 +73,8 @@ export default function Signup() {
 
     const companyId = companyData.id;
 
-    const { error: updateError } = await supabase
+    // Step 3: Link user profile
+    const { error: profileError } = await supabase
       .from('user_profiles')
       .update({
         first_name: firstName,
@@ -86,8 +89,8 @@ export default function Signup() {
       })
       .eq('id', userId);
 
-    if (updateError) {
-      setError(updateError.message || 'Failed to link user');
+    if (profileError) {
+      setError(profileError.message || 'Failed to update user profile');
       setLoading(false);
       return;
     }
@@ -111,6 +114,7 @@ export default function Signup() {
           required
           className="input"
         />
+
         <input
           type="text"
           placeholder="Last Name"
@@ -119,6 +123,7 @@ export default function Signup() {
           required
           className="input"
         />
+
         <input
           type="email"
           placeholder="Email"
@@ -127,6 +132,7 @@ export default function Signup() {
           required
           className="input"
         />
+
         <input
           type="password"
           placeholder="Password"
@@ -146,6 +152,7 @@ export default function Signup() {
           required
           className="input"
         />
+
         <input
           type="text"
           placeholder="VAT Number"
@@ -153,6 +160,7 @@ export default function Signup() {
           onChange={(e) => setVatNumber(e.target.value)}
           className="input"
         />
+
         <input
           type="text"
           placeholder="Company Address"
