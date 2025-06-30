@@ -13,21 +13,46 @@ export default function Settings() {
   const [success, setSuccess] = useState(false);
 
  useEffect(() => {
-  const fetchSettings = async () => {
-    if (!user || !user.id) return;
-    console.log("👤 Loading settings for user:", user.id); // ADD THIS LINE
-    setLoading(true);
-    const settings = await loadUserSettings(user.id);
-    if (settings) {
-      setUserSettings(settings);
-    } else {
-      setError('Could not load settings.');
+  const initAuth = async () => {
+    if (isDevMode) {
+      setUser(fakeUser as User);
+      setSession({ user: fakeUser } as Session);
+      setLoading(false);
+      return;
     }
+
+    if (!isSupabaseConfigured || !supabase) {
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error('Failed to get session:', error);
+    }
+
+    if (data?.session) {
+      setSession(data.session);
+      setUser(data.session.user);
+    } else {
+      setSession(null);
+      setUser(null);
+    }
+
     setLoading(false);
   };
 
-  fetchSettings();
-}, [user]);
+  initAuth();
+
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    (_event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    }
+  );
+
+  return () => subscription.unsubscribe();
+}, [isDevMode, fakeUser]);
 
 
   const renderTabContent = () => {
