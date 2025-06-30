@@ -29,7 +29,6 @@ useEffect(() => {
   fetchSettings();
 }, [user]);
 
-
   initAuth();
 
   const { data: { subscription } } = supabase.auth.onAuthStateChange(
