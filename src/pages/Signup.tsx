@@ -24,7 +24,10 @@ export default function Signup() {
     setLoading(true);
     setError(null);
 
-    // Step 1: Create user with Supabase Auth
+    const trialStart = new Date();
+    const trialEnd = new Date();
+    trialEnd.setDate(trialStart.getDate() + 14);
+
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
@@ -32,6 +35,12 @@ export default function Signup() {
         data: {
           first_name: firstName,
           last_name: lastName,
+          role: 'admin',
+          is_owner: true,
+          trial_start_date: trialStart.toISOString(),
+          trial_end_date: trialEnd.toISOString(),
+          is_trial_active: true,
+          subscription_status: 'trial',
         },
       },
     });
@@ -44,7 +53,6 @@ export default function Signup() {
 
     const userId = authData.user.id;
 
-    // Step 2: Insert company record
     const { data: companyData, error: companyError } = await supabase
       .from('companies')
       .insert({
@@ -63,7 +71,6 @@ export default function Signup() {
 
     const companyId = companyData.id;
 
-    // Step 3: Update user_profiles with metadata
     const { error: updateError } = await supabase
       .from('user_profiles')
       .update({
@@ -72,6 +79,10 @@ export default function Signup() {
         role: 'admin',
         is_owner: true,
         company_id: companyId,
+        trial_start_date: trialStart.toISOString(),
+        trial_end_date: trialEnd.toISOString(),
+        is_trial_active: true,
+        subscription_status: 'trial',
       })
       .eq('id', userId);
 
@@ -100,7 +111,6 @@ export default function Signup() {
           required
           className="input"
         />
-
         <input
           type="text"
           placeholder="Last Name"
@@ -109,7 +119,6 @@ export default function Signup() {
           required
           className="input"
         />
-
         <input
           type="email"
           placeholder="Email"
@@ -118,7 +127,6 @@ export default function Signup() {
           required
           className="input"
         />
-
         <input
           type="password"
           placeholder="Password"
@@ -138,7 +146,6 @@ export default function Signup() {
           required
           className="input"
         />
-
         <input
           type="text"
           placeholder="VAT Number"
@@ -146,7 +153,6 @@ export default function Signup() {
           onChange={(e) => setVatNumber(e.target.value)}
           className="input"
         />
-
         <input
           type="text"
           placeholder="Company Address"
