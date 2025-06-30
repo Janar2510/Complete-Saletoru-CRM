@@ -39,6 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [isBlocked, setIsBlocked] = useState(false);
 
 useEffect(() => {
   if (!isSupabaseConfigured || !supabase) {
