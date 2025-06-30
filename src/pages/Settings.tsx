@@ -12,45 +12,20 @@ export default function Settings() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    const loadUserSettings = async () => {
-      if (!user || !user.id) return;
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('user_settings')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-        if (error) throw error;
-        setUserSettings(data || {});
-      } catch (err) {
-        console.error('Failed to load user settings:', err);
-        setError('Could not load settings.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadUserSettings();
-  }, [user]);
-
-  const handleSave = async () => {
+  const fetchSettings = async () => {
     if (!user || !user.id) return;
-    try {
-      setLoading(true);
-      const { error } = await supabase
-        .from('user_settings')
-        .upsert({ user_id: user.id, ...userSettings });
-      if (error) throw error;
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      console.error('Failed to save settings:', err);
-      setError('Could not save settings.');
-    } finally {
-      setLoading(false);
+    setLoading(true);
+    const settings = await loadUserSettings(user.id);
+    if (settings) {
+      setUserSettings(settings);
+    } else {
+      setError('Could not load settings.');
     }
+    setLoading(false);
   };
+
+  fetchSettings();
+}, [user]);
 
   const renderTabContent = () => {
     switch (selectedTab) {
