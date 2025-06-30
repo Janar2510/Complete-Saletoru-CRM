@@ -37,8 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     navigate('/blocked'); // create this screen
   }
 }, [user]);
-      return;
-    }
+ 
 
     if (!isSupabaseConfigured || !supabase) {
       setLoading(false);
