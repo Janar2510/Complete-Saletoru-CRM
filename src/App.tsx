@@ -15,7 +15,7 @@ import Marketplace from './pages/Marketplace';
 import LeadScoring from './pages/LeadScoring';
 import Leads from './pages/Leads';
 import Onboarding from './pages/Onboarding';
-import Login from './pages/auth/Login';
+import Signup from './pages/signup/Signup';
 import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
@@ -40,7 +40,7 @@ function App() {
             
             <Routes>
               {/* Auth Routes */}
-              <Route path="/login" element={<Login />} />
+             <Route path="/signup" element={<Signup />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
