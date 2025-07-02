@@ -40,8 +40,9 @@ function App() {
             
             <Routes>
               {/* Auth Routes */}
-            <Routes>
+ <Routes>
   <Route path="/" element={<Signup />} />
+</Routes>
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
