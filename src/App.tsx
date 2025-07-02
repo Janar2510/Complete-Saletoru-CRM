@@ -15,7 +15,7 @@ import Marketplace from './pages/Marketplace';
 import LeadScoring from './pages/LeadScoring';
 import Leads from './pages/Leads';
 import Onboarding from './pages/Onboarding';
-import Signup from './pages/signup/Signup';
+import Signup from "./pages/Signup";
 import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
