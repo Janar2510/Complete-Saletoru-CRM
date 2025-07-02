@@ -1,144 +1,85 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, User } from 'lucide-react';
-import { Card } from '../components/common/Card';
-import { supabase } from '../lib/supabase';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
-export default function Signup() {
+const Signup = () => {
+  const { signUp } = useAuth();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    full_name: '',
-    email: '',
-    password: '',
-    confirm_password: '',
-  });
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    if (formData.password !== formData.confirm_password) {
-      return setError('Passwords do not match');
-    }
-
-    setLoading(true);
-    const trialStart = new Date();
-    const trialEnd = new Date();
-    trialEnd.setDate(trialStart.getDate() + 14);
-
-    const { data, error } = await supabase.auth.signUp({
-      email: formData.email,
-      password: formData.password,
-      options: {
-        data: {
-          full_name: formData.full_name,
-          role: 'admin',
-          is_owner: true,
-          trial_start_date: trialStart.toISOString(),
-          trial_end_date: trialEnd.toISOString(),
-          is_trial_active: true,
-          subscription_status: 'trial',
-        },
-      },
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
       return;
     }
 
-    navigate('/onboarding');
+    try {
+      await signUp(email, password, fullName);
+      navigate("/onboarding");
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 mx-auto mb-4">
-            <img src="https://i.imgur.com/Zylpdjy.png" alt="SaleToru Logo" className="w-full h-full" />
-          </div>
-          <h1 className="text-3xl font-bold text-white">SaleToru</h1>
-          <p className="text-dark-400">Smart Sales Management</p>
-        </div>
-
-        <Card className="p-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Create Account</h2>
-
-          {error && (
-            <div className="bg-red-500/20 border border-red-500/30 text-red-400 p-4 rounded-lg mb-6">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-400" />
-              <input
-                name="full_name"
-                placeholder="Enter your full name"
-                onChange={handleChange}
-                className="w-full pl-10 pr-3 py-2 bg-dark-200 border border-dark-300 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-400" />
-              <input
-                name="email"
-                type="email"
-                placeholder="Enter your email"
-                onChange={handleChange}
-                className="w-full pl-10 pr-3 py-2 bg-dark-200 border border-dark-300 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-400" />
-              <input
-                name="password"
-                type="password"
-                placeholder="Create a password"
-                onChange={handleChange}
-                className="w-full pl-10 pr-3 py-2 bg-dark-200 border border-dark-300 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-dark-400" />
-              <input
-                name="confirm_password"
-                type="password"
-                placeholder="Confirm your password"
-                onChange={handleChange}
-                className="w-full pl-10 pr-3 py-2 bg-dark-200 border border-dark-300 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-accent hover:bg-accent/80 disabled:opacity-70 text-white py-2 rounded-lg transition-colors"
-            >
-              {loading ? 'Creating...' : 'Create Account'}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-dark-400">
-              Already have an account?{' '}
-              <Link to="/login" className="text-accent hover:text-accent/80">
-                Sign In
-              </Link>
-            </p>
-          </div>
-        </Card>
+    <div className="min-h-screen flex items-center justify-center bg-[#0f0f1c] text-white">
+      <div className="w-full max-w-md bg-gradient-to-br from-[#1a1a2e] to-[#16162a] p-8 rounded-2xl shadow-lg">
+        <h2 className="text-2xl font-bold mb-6 text-center">Create Account</h2>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            className="w-full p-3 rounded-md bg-[#25253c] text-white placeholder-gray-400"
+            placeholder="Enter your full name"
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
+          <input
+            className="w-full p-3 rounded-md bg-[#25253c] text-white placeholder-gray-400"
+            placeholder="Enter your email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            className="w-full p-3 rounded-md bg-[#25253c] text-white placeholder-gray-400"
+            placeholder="Create a password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <input
+            className="w-full p-3 rounded-md bg-[#25253c] text-white placeholder-gray-400"
+            placeholder="Confirm your password"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+          <button
+            type="submit"
+            className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded-md transition"
+          >
+            Create Account
+          </button>
+        </form>
+        <p className="mt-4 text-center text-sm">
+          Already have an account?{" "}
+          <Link to="/login" className="text-indigo-400 hover:underline">
+            Sign In
+          </Link>
+        </p>
       </div>
     </div>
   );
-}
+};
+
+export default Signup;
